@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>পরীক্ষা ব্যবস্থাপনা | আব্দুল্লাহ হাট মাদ্রাসা</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="container">
+    <h1>আব্দুল্লাহ হাট ইসলামিয়া ফাজিল (ডিগ্রী) মাদ্রাসা</h1>
+    <h2>Abdullah Hat Islamia Fazil (Degree) Madrasah</h2>
+    <p>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</p>
+  </div>
+</header>
+
+<nav class="navbar">
+  <div class="container nav-links">
+    <a href="index.html">হোম</a>
+    <a href="dashboard.html">ড্যাশবোর্ড</a>
+    <a href="employee.html">শিক্ষক-কর্মচারী</a>
+    <a href="students.html">শিক্ষার্থী</a>
+    <a href="admission.html">ভর্তি</a>
+    <a href="exam.html">পরীক্ষা</a>
+    <a href="marks.html">নম্বর প্রদান</a>
+    <a href="results.html">রেজাল্ট</a>
+    <a href="income-expense.html">আয়-ব্যয়</a>
+    <a href="calendar.html">ক্যালেন্ডার</a>
+    <a href="gallery.html">গ্যালারি</a>
+    <a href="downloads.html">ডাউনলোড</a>
+  </div>
+</nav>
+
+<main class="container">
+  <section class="welcome">
+    <h2>পরীক্ষা ব্যবস্থাপনা</h2>
+    <p>পরীক্ষা, বিষয়, গ্রেডিং এবং মার্কশিটের সেটিংস পরিচালনা করুন।</p>
+  </section>
+
+  <section class="section">
+    <h2>পরীক্ষা সেটআপ</h2>
+    <form id="examSetupForm">
+      <label for="examYear">শিক্ষাবর্ষ</label>
+      <select id="examYear" required>
+        <option value="">শিক্ষাবর্ষ নির্বাচন করুন</option>
+        <option>2026</option>
+        <option>2027</option>
+        <option>2028</option>
+      </select>
+
+      <label for="examName">পরীক্ষার নাম</label>
+      <select id="examName" required>
+        <option value="">পরীক্ষা নির্বাচন করুন</option>
+        <option>অর্ধবার্ষিক পরীক্ষা</option>
+        <option>প্রাক-নির্বাচনী পরীক্ষা</option>
+        <option>নির্বাচনী পরীক্ষা</option>
+        <option>১ম টিউটোরিয়াল</option>
+        <option>২য় টিউটোরিয়াল</option>
+        <option>৩য় টিউটোরিয়াল</option>
+        <option>বার্ষিক পরীক্ষা</option>
+      </select>
+
+      <label for="examClass">শ্রেণি</label>
+      <select id="examClass" required>
+        <option value="">শ্রেণি নির্বাচন করুন</option>
+        <option value="nurani1">নূরানী ১ম জামাত</option>
+        <option value="nurani2">নূরানী ২য় জামাত</option>
+        <option value="nurani3">নূরানী ৩য় জামাত</option>
+        <option value="ebtedayi4">ইবতেদায়ী ৪র্থ শ্রেণি</option>
+        <option value="ebtedayi5">ইবতেদায়ী ৫ম শ্রেণি</option>
+        <option value="dakhil6">দাখিল ৬ষ্ঠ শ্রেণি</option>
+        <option value="dakhil7">দাখিল ৭ম শ্রেণি</option>
+        <option value="dakhil8">দাখিল ৮ম শ্রেণি</option>
+        <option value="dakhil9">দাখিল ৯ম শ্রেণি</option>
+        <option value="dakhil10">দাখিল ১০ম শ্রেণি</option>
+        <option value="alim1">আলিম ১ম বর্ষ</option>
+        <option value="alim2">আলিম ২য় বর্ষ</option>
+        <option value="fazil1">ফাজিল ১ম বর্ষ</option>
+        <option value="fazil2">ফাজিল ২য় বর্ষ</option>
+        <option value="fazil3">ফাজিল ৩য় বর্ষ</option>
+      </select>
+
+      <button type="submit">পরীক্ষার সেটিংস সংরক্ষণ</button>
+    </form>
+  </section>
+
+  <section class="section">
+    <h2>বিষয় ও পূর্ণমান সেটআপ</h2>
+    <p>প্রতিটি শ্রেণির বিষয়, CQ, MCQ, ব্যবহারিক ও পূর্ণমান পরবর্তী ধাপে যুক্ত হবে।</p>
+    <div id="subjectSetupOutput"></div>
+  </section>
+
+  <section class="section">
+    <h2>গ্রেডিং সেটআপ</h2>
+    <table>
+      <thead>
+        <tr><th>নম্বর</th><th>গ্রেড</th><th>GP</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>80–100</td><td>A+</td><td>5.00</td></tr>
+        <tr><td>70–79</td><td>A</td><td>4.00</td></tr>
+        <tr><td>60–69</td><td>A-</td><td>3.50</td></tr>
+        <tr><td>50–59</td><td>B</td><td>3.00</td></tr>
+        <tr><td>40–49</td><td>C</td><td>2.00</td></tr>
+        <tr><td>33–39</td><td>D</td><td>1.00</td></tr>
+        <tr><td>0–32</td><td>F</td><td>0.00</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section">
+    <h2>মার্কশিট ডিজাইন সেটিংস</h2>
+    <label for="markLogo">লোগো নির্বাচন</label>
+    <input type="file" id="markLogo" accept="image/*">
+
+    <label for="markWatermark">ওয়াটারমার্ক ছবি</label>
+    <input type="file" id="markWatermark" accept="image/*">
+
+    <label for="principalSignature">অধ্যক্ষের স্বাক্ষর</label>
+    <input type="file" id="principalSignature" accept="image/*">
+
+    <label for="controllerSignature">পরীক্ষা নিয়ন্ত্রকের স্বাক্ষর</label>
+    <input type="file" id="controllerSignature" accept="image/*">
+
+    <label for="markBorderColor">মার্কশিট বর্ডারের রং</label>
+    <input type="color" id="markBorderColor" value="#d4a017">
+  </section>
+
+  <section class="section">
+    <h2>এডমিট কার্ড</h2>
+    <p>শিক্ষাবর্ষ, পরীক্ষা ও শ্রেণি অনুযায়ী এডমিট কার্ড তৈরির সুবিধা পরবর্তী ধাপে যুক্ত হবে।</p>
+  </section>
+</main>
+
+<footer class="footer">
+  <p>© 2026 Abdullah Hat Islamia Fazil (Degree) Madrasah</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
