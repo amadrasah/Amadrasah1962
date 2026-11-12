@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>শিক্ষক-কর্মচারী | আব্দুল্লাহ হাট মাদ্রাসা</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="container">
+    <h1>আব্দুল্লাহ হাট ইসলামিয়া ফাজিল (ডিগ্রী) মাদ্রাসা</h1>
+    <h2>Abdullah Hat Islamia Fazil (Degree) Madrasah</h2>
+    <p>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</p>
+  </div>
+</header>
+
+<nav class="navbar">
+  <div class="container nav-links">
+    <a href="index.html">হোম</a>
+    <a href="dashboard.html">ড্যাশবোর্ড</a>
+    <a href="employee.html">শিক্ষক-কর্মচারী</a>
+    <a href="students.html">শিক্ষার্থী</a>
+    <a href="admission.html">ভর্তি</a>
+    <a href="exam.html">পরীক্ষা</a>
+    <a href="marks.html">নম্বর প্রদান</a>
+    <a href="results.html">রেজাল্ট</a>
+    <a href="income-expense.html">আয়-ব্যয়</a>
+    <a href="calendar.html">ক্যালেন্ডার</a>
+    <a href="gallery.html">গ্যালারি</a>
+    <a href="downloads.html">ডাউনলোড</a>
+  </div>
+</nav>
+
+<main class="container">
+  <section class="welcome">
+    <h2>শিক্ষক-কর্মচারী ব্যবস্থাপনা</h2>
+    <p>প্রতিষ্ঠানের শিক্ষক ও কর্মচারীদের তথ্য সংরক্ষণ ও পরিচালনা।</p>
+  </section>
+
+  <section class="section">
+    <h2>নতুন শিক্ষক-কর্মচারীর তথ্য</h2>
+
+    <form id="employeeForm">
+      <label for="employeeName">নাম</label>
+      <input id="employeeName" type="text" placeholder="পূর্ণ নাম" required>
+
+      <label for="employeeDesignation">পদবি</label>
+      <select id="employeeDesignation" required>
+        <option value="">পদবি নির্বাচন করুন</option>
+        <option>অধ্যক্ষ</option>
+        <option>উপাধ্যক্ষ</option>
+        <option>সহকারী অধ্যাপক</option>
+        <option>প্রভাষক</option>
+        <option>সহকারী শিক্ষক</option>
+        <option>অফিস সহকারী</option>
+        <option>অন্যান্য কর্মচারী</option>
+      </select>
+
+      <label for="employeeMobile">মোবাইল</label>
+      <input id="employeeMobile" type="tel" placeholder="মোবাইল নম্বর">
+
+      <label for="employeeJoining">যোগদানের তারিখ</label>
+      <input id="employeeJoining" type="date">
+
+      <button type="submit">তথ্য সংরক্ষণ</button>
+    </form>
+  </section>
+
+  <section class="section">
+    <h2>শিক্ষক-কর্মচারীর তালিকা</h2>
+    <div id="employeeList">
+      <p>এখনো কোনো তথ্য সংরক্ষণ করা হয়নি।</p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p>© 2026 Abdullah Hat Islamia Fazil (Degree) Madrasah</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
