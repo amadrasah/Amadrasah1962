@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>আয়-ব্যয় ব্যবস্থাপনা</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+  <h2>আব্দুল্লাহ হাট ইসলামিয়া ফাজিল (ডিগ্রী) মাদ্রাসা</h2>
+  <p>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</p>
+</header>
+
+<nav class="nav">
+  <a href="index.html">হোম</a>
+  <a href="dashboard.html">ড্যাশবোর্ড</a>
+  <a href="students.html">শিক্ষার্থী</a>
+  <a href="admission.html">ভর্তি</a>
+  <a href="income-expense.html">আয়-ব্যয়</a>
+</nav>
+
+<main class="container">
+
+  <h2>আয়-ব্যয় ব্যবস্থাপনা</h2>
+
+  <section class="card">
+    <h3>নতুন আয় / ব্যয় এন্ট্রি</h3>
+
+    <label>হিসাবের ধরন</label>
+    <select id="accountType">
+      <option value="income">আয়</option>
+      <option value="expense">ব্যয়</option>
+    </select>
+
+    <label>খাত নির্বাচন</label>
+    <select id="accountCategory">
+      <option value="">খাত নির্বাচন করুন</option>
+      <option>ভর্তি ফি</option>
+      <option>পরীক্ষা ফি</option>
+      <option>রেজিস্ট্রেশন ফি</option>
+      <option>ফরম ফিলাপ ফি</option>
+      <option>বেতন বিলম্ব ফি</option>
+      <option>বেতন</option>
+      <option>সরকারি অনুদান</option>
+      <option>বেসরকারি অনুদান</option>
+      <option>অন্যান্য আয়</option>
+      <option>শিক্ষক-কর্মচারীদের বেতন</option>
+      <option>পরীক্ষা পরিচালনা ব্যয়</option>
+      <option>বিদ্যুৎ বিল</option>
+      <option>অন্যান্য ব্যয়</option>
+    </select>
+
+    <label>শিক্ষাবর্ষ</label>
+    <select id="incomeYear">
+      <option value="">বছর নির্বাচন করুন</option>
+      <option>2026</option>
+      <option>2027</option>
+      <option>2028</option>
+    </select>
+
+    <label>শ্রেণি</label>
+    <select id="incomeClass">
+      <option value="">শ্রেণি নির্বাচন করুন</option>
+      <option value="nurani1">নূরানী ১ম জামাত</option>
+      <option value="nurani2">নূরানী ২য় জামাত</option>
+      <option value="nurani3">নূরানী ৩য় জামাত</option>
+      <option value="ebtedayi4">ইবতেদায়ী ৪র্থ শ্রেণি</option>
+      <option value="ebtedayi5">ইবতেদায়ী ৫ম শ্রেণি</option>
+      <option value="dakhil6">দাখিল ৬ষ্ঠ শ্রেণি</option>
+      <option value="dakhil7">দাখিল ৭ম শ্রেণি</option>
+      <option value="dakhil8">দাখিল ৮ম শ্রেণি</option>
+      <option value="dakhil9">দাখিল ৯ম শ্রেণি</option>
+      <option value="dakhil10">দাখিল ১০ম শ্রেণি</option>
+      <option value="alim1">আলিম ১ম বর্ষ</option>
+      <option value="alim2">আলিম ২য় বর্ষ</option>
+      <option value="fazil1">ফাজিল ১ম বর্ষ</option>
+      <option value="fazil2">ফাজিল ২য় বর্ষ</option>
+      <option value="fazil3">ফাজিল ৩য় বর্ষ</option>
+    </select>
+
+    <label>শিক্ষার্থীর রোল</label>
+    <input type="number" id="incomeRoll" placeholder="রোল নম্বর লিখুন">
+
+    <div id="incomeStudentInfo">
+      <p>শিক্ষার্থীর নাম: —</p>
+      <p>শিক্ষার্থী আইডি: —</p>
+    </div>
+
+    <label>টাকার পরিমাণ</label>
+    <input type="number" id="accountAmount" placeholder="টাকার পরিমাণ লিখুন">
+
+    <label>তারিখ</label>
+    <input type="date" id="accountDate">
+
+    <label>বিবরণ</label>
+    <textarea id="accountNote" placeholder="প্রয়োজনীয় বিবরণ লিখুন"></textarea>
+
+    <button type="button">হিসাব সংরক্ষণ</button>
+  </section>
+
+  <section class="card">
+    <h3>আয়-ব্যয়ের সারসংক্ষেপ</h3>
+    <p>মোট আয়: <strong id="totalIncome">০ টাকা</strong></p>
+    <p>মোট ব্যয়: <strong id="totalExpense">০ টাকা</strong></p>
+    <p>বর্তমান জমা: <strong id="currentBalance">০ টাকা</strong></p>
+  </section>
+
+  <section class="card">
+    <h3>হিসাবের রিপোর্ট</h3>
+
+    <label>রিপোর্টের ধরন</label>
+    <select id="reportType">
+      <option value="daily">দৈনিক রিপোর্ট</option>
+      <option value="monthly">মাসিক রিপোর্ট</option>
+      <option value="yearly">বার্ষিক রিপোর্ট</option>
+    </select>
+
+    <label>তারিখ / মাস / বছর</label>
+    <input type="date" id="reportDate">
+
+    <button type="button">রিপোর্ট দেখুন</button>
+
+    <div id="incomeExpenseReport">
+      রিপোর্ট এখানে দেখা যাবে।
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>মানি রসিদ</h3>
+    <p>শিক্ষার্থীর নাম: —</p>
+    <p>আইডি ও রোল: —</p>
+    <p>জমার খাত: —</p>
+    <p>টাকার পরিমাণ: —</p>
+    <p>তারিখ: —</p>
+    <p>গ্রহণকারীর স্বাক্ষর: ______________</p>
+    <button type="button" onclick="window.print()">রসিদ প্রিন্ট</button>
+    <p>রসিদটি অর্ধেক A4 কাগজে প্রিন্ট করার উপযোগী করা হবে।</p>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
