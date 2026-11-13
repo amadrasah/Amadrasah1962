@@ -1,144 +1,104 @@
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="শিক্ষক-কর্মচারী ব্যবস্থাপনা">
-  <title>শিক্ষক-কর্মচারী | আব্দুল্লাহ হাট মাদ্রাসা</title>
+  <title>শিক্ষক-কর্মচারী ব্যবস্থাপনা</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<header class="header">
-  <div class="container">
-    <h1>আব্দুল্লাহ হাট ইসলামিয়া ফাজিল (ডিগ্রী) মাদ্রাসা</h1>
-    <h2>Abdullah Hat Islamia Fazil (Degree) Madrasah</h2>
-    <p>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</p>
-  </div>
+<header>
+  <h2>আব্দুল্লাহ হাট ইসলামিয়া ফাজিল (ডিগ্রী) মাদ্রাসা</h2>
+  <p>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</p>
 </header>
 
-<nav class="navbar">
-  <div class="container nav-links">
-    <a href="index.html">হোম</a>
-    <a href="dashboard.html">ড্যাশবোর্ড</a>
-    <a href="employee.html">শিক্ষক-কর্মচারী</a>
-    <a href="students.html">শিক্ষার্থী</a>
-    <a href="admission.html">ভর্তি</a>
-    <a href="exam.html">পরীক্ষা</a>
-    <a href="marks.html">নম্বর প্রদান</a>
-    <a href="results.html">রেজাল্ট</a>
-    <a href="income-expense.html">আয়-ব্যয়</a>
-    <a href="calendar.html">ক্যালেন্ডার</a>
-    <a href="gallery.html">গ্যালারি</a>
-    <a href="downloads.html">ডাউনলোড</a>
-  </div>
-</nav>
-
 <main class="container">
-
-  <section class="welcome">
-    <h2>শিক্ষক-কর্মচারী ব্যবস্থাপনা</h2>
-    <p>প্রতিষ্ঠানের শিক্ষক ও কর্মচারীদের তথ্য সংরক্ষণ ও পরিচালনা।</p>
-  </section>
+  <h2>শিক্ষক-কর্মচারী ব্যবস্থাপনা</h2>
 
   <section class="card">
-    <h2>নতুন শিক্ষক-কর্মচারীর তথ্য</h2>
+    <h3 id="employeeFormTitle">নতুন শিক্ষক/কর্মচারী যোগ করুন</h3>
 
     <form id="employeeForm">
+      <input type="hidden" id="employeeEditId">
 
-      <label for="employeeName">নাম</label>
-      <input id="employeeName" type="text"
-        placeholder="পূর্ণ নাম" required>
+      <label>নাম *</label>
+      <input id="employeeName" required placeholder="পূর্ণ নাম">
 
-      <label for="employeeDesignation">পদবি</label>
-      <select id="employeeDesignation" required>
-        <option value="">পদবি নির্বাচন করুন</option>
-        <option>অধ্যক্ষ</option>
-        <option>উপাধ্যক্ষ</option>
-        <option>সহকারী অধ্যাপক</option>
-        <option>প্রভাষক</option>
-        <option>সহকারী শিক্ষক</option>
-        <option>অফিস সহকারী</option>
-        <option>অন্যান্য কর্মচারী</option>
-      </select>
+      <label>পদবি *</label>
+      <input id="employeeDesignation" required placeholder="যেমন: সহকারী শিক্ষক">
 
-      <label for="employeeType">ধরন</label>
-      <select id="employeeType" required>
-        <option value="">নির্বাচন করুন</option>
+      <label>ধরন</label>
+      <select id="employeeType">
         <option value="শিক্ষক">শিক্ষক</option>
         <option value="কর্মচারী">কর্মচারী</option>
       </select>
 
-      <label for="employeeMobile">মোবাইল</label>
-      <input id="employeeMobile" type="tel"
-        placeholder="মোবাইল নম্বর" required>
+      <label>মোবাইল নম্বর</label>
+      <input id="employeeMobile" type="tel">
 
-      <label for="employeeEmail">ইমেইল</label>
-      <input id="employeeEmail" type="email"
-        placeholder="ইমেইল (ঐচ্ছিক)">
+      <label>ইমেইল</label>
+      <input id="employeeEmail" type="email">
 
-      <label for="employeeAddress">ঠিকানা</label>
-      <textarea id="employeeAddress"
-        placeholder="বর্তমান ঠিকানা"></textarea>
+      <label>ঠিকানা</label>
+      <textarea id="employeeAddress"></textarea>
 
-      <label for="employeeJoinDate">যোগদানের তারিখ</label>
+      <label>শিক্ষাগত যোগ্যতা</label>
+      <input id="employeeQualification" placeholder="যেমন: কামিল / ফাজিল / স্নাতক">
+
+      <label>মাসিক বেতন</label>
+      <input id="employeeSalary" type="number" min="0" placeholder="টাকা">
+
+      <label>যোগদানের তারিখ</label>
       <input id="employeeJoinDate" type="date">
 
-      <button type="submit">তথ্য সংরক্ষণ</button>
-      <button type="reset" class="secondary">ফরম পরিষ্কার</button>
+      <label>চাকরির বিবরণ</label>
+      <textarea id="employeeJobDetails" placeholder="অতিরিক্ত তথ্য বা চাকরির বিবরণ"></textarea>
 
+      <label>ছবি</label>
+      <input id="employeePhoto" type="file" accept="image/*">
+      <img id="employeePhotoPreview" style="display:none;width:100px;height:100px;object-fit:cover;margin-top:10px;border-radius:8px;">
+
+      <p id="employeeMessage"></p>
+
+      <button type="submit" id="employeeSaveButton">তথ্য সংরক্ষণ করুন</button>
+      <button type="button" id="employeeCancelButton" style="display:none;">সম্পাদনা বাতিল</button>
     </form>
-
-    <div id="employeeMessage"></div>
   </section>
 
   <section class="card">
+    <h3>শিক্ষক-কর্মচারীর তালিকা</h3>
+    <p>মোট সদস্য: <strong id="employeeCount">০</strong></p>
 
-    <h2>শিক্ষক-কর্মচারীর তালিকা</h2>
+    <input id="employeeSearch" placeholder="নাম, পদবি বা মোবাইল দিয়ে খুঁজুন">
 
-    <p>মোট শিক্ষক-কর্মচারী:
-      <strong id="employeeCount">0</strong> জন
-    </p>
-
-    <label for="employeeSearch">তথ্য খুঁজুন</label>
-    <input id="employeeSearch" type="search"
-      placeholder="নাম, পদবি বা মোবাইল দিয়ে খুঁজুন">
-
-    <div class="table-wrap">
+    <div style="overflow-x:auto;">
       <table>
         <thead>
           <tr>
-            <th>ক্রমিক</th>
+            <th>ছবি</th>
             <th>আইডি</th>
-            <th>নাম</th>
-            <th>পদবি</th>
+            <th>নাম ও পদবি</th>
             <th>ধরন</th>
             <th>মোবাইল</th>
+            <th>যোগ্যতা</th>
+            <th>বেতন</th>
             <th>যোগদানের তারিখ</th>
-            <th>অ্যাকশন</th>
+            <th>কাজ</th>
           </tr>
         </thead>
-
-        <tbody id="employeeTableBody">
-          <tr>
-            <td colspan="8">তথ্য লোড হচ্ছে...</td>
-          </tr>
-        </tbody>
+        <tbody id="employeeTableBody"></tbody>
       </table>
     </div>
-
   </section>
-
 </main>
 
-<footer class="footer">
-  <p>© 2026 Abdullah Hat Islamia Fazil (Degree) Madrasah</p>
-  <p>সর্বস্বত্ব সংরক্ষিত</p>
+<footer>
+  <p>© Abdullah Hat Islamia Fazil (Degree) Madrasah</p>
 </footer>
 
 <script src="script.js"></script>
 <script src="employee.js"></script>
-
 </body>
 </html>
