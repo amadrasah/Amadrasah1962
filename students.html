@@ -10,7 +10,7 @@
   <style>
     .students-page .search-grid {
       display: grid;
-      grid-template-columns: 2fr 1fr;
+      grid-template-columns: 2fr 1fr 1fr;
       gap: 15px;
       align-items: end;
     }
@@ -39,7 +39,7 @@
 
     .students-page table {
       width: 100%;
-      min-width: 750px;
+      min-width: 950px;
       border-collapse: collapse;
     }
 
@@ -109,6 +109,14 @@
       background: #04472c;
     }
 
+    .students-page .gold-btn {
+      background: #b8860b;
+    }
+
+    .students-page .red-btn {
+      background: #a83232;
+    }
+
     .students-page #studentProfileOutput {
       display: none;
       margin-top: 20px;
@@ -124,18 +132,81 @@
       font-weight: bold;
     }
 
+    .students-page .document-history {
+      margin-top: 15px;
+    }
+
+    .students-page .document-history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .students-page .status-current {
+      color: #08743c;
+      font-weight: bold;
+    }
+
+    .students-page .status-left {
+      color: #a83232;
+      font-weight: bold;
+    }
+
+    .students-page .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .students-page .profile-item {
+      background: #f5f8f5;
+      padding: 10px;
+      border-radius: 6px;
+      overflow-wrap: anywhere;
+    }
+
+    .students-page .profile-item b {
+      color: #075e3a;
+    }
+
+    @media (max-width: 800px) {
+      .students-page .search-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .students-page .search-grid > div:first-child {
+        grid-column: 1 / -1;
+      }
+    }
+
     @media (max-width: 650px) {
       .students-page .search-grid {
         grid-template-columns: 1fr;
       }
 
+      .students-page .search-grid > div:first-child {
+        grid-column: auto;
+      }
+
       .students-page .service-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .students-page .profile-grid {
         grid-template-columns: 1fr 1fr;
       }
     }
 
     @media (max-width: 420px) {
-      .students-page .service-grid {
+      .students-page .service-grid,
+      .students-page .profile-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -144,6 +215,8 @@
 
 <body>
 
+<!-- প্রতিষ্ঠানের হেডার -->
+
 <header class="header">
   <div class="container">
     <h1>আব্দুল্লাহ হাট ইসলামিয়া ফাজিল (ডিগ্রী) মাদ্রাসা</h1>
@@ -151,6 +224,8 @@
     <p>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</p>
   </div>
 </header>
+
+<!-- নেভিগেশন মেনু -->
 
 <nav class="navbar">
   <div class="container nav-links">
@@ -171,9 +246,14 @@
 
 <main class="container students-page">
 
+  <!-- স্বাগত অংশ -->
+
   <section class="welcome">
     <h2>শিক্ষার্থী ব্যবস্থাপনা</h2>
-    <p>শিক্ষার্থীদের তথ্য, প্রোফাইল ও প্রয়োজনীয় সেবা পরিচালনা করুন।</p>
+    <p>
+      শিক্ষার্থীদের তথ্য, প্রোফাইল, সনদপত্র, ছাড়পত্র
+      এবং প্রয়োজনীয় সেবা পরিচালনা করুন।
+    </p>
   </section>
 
   <!-- শিক্ষার্থী অনুসন্ধান -->
@@ -182,8 +262,12 @@
     <h2>শিক্ষার্থী অনুসন্ধান</h2>
 
     <div class="search-grid">
+
       <div>
-        <label for="studentSearch">নাম, আইডি, রোল অথবা মোবাইল নম্বর</label>
+        <label for="studentSearch">
+          নাম, আইডি, রোল অথবা মোবাইল নম্বর
+        </label>
+
         <input
           id="studentSearch"
           type="search"
@@ -193,6 +277,7 @@
 
       <div>
         <label for="studentClass">শ্রেণি নির্বাচন</label>
+
         <select id="studentClass">
           <option value="">সকল শ্রেণি</option>
           <option value="নূরানী ১ম জামাত">নূরানী ১ম জামাত</option>
@@ -212,9 +297,22 @@
           <option value="ফাজিল ৩য় বর্ষ">ফাজিল ৩য় বর্ষ</option>
         </select>
       </div>
+
+      <div>
+        <label for="studentStatusFilter">শিক্ষার্থীর অবস্থা</label>
+
+        <select id="studentStatusFilter">
+          <option value="all">সব শিক্ষার্থী</option>
+          <option value="current">বর্তমান শিক্ষার্থী</option>
+          <option value="transferred">স্থানান্তরিত শিক্ষার্থী</option>
+        </select>
+      </div>
+
     </div>
 
-    <p id="studentCount" class="count">মোট শিক্ষার্থী: ০ জন</p>
+    <p id="studentCount" class="count">
+      মোট শিক্ষার্থী: ০ জন
+    </p>
   </section>
 
   <!-- শিক্ষার্থী তালিকা -->
@@ -234,13 +332,14 @@
             <th>শিক্ষাবর্ষ</th>
             <th>পিতার নাম</th>
             <th>মোবাইল</th>
+            <th>অবস্থা</th>
             <th>নির্বাচন</th>
           </tr>
         </thead>
 
         <tbody id="studentList">
           <tr>
-            <td colspan="9" class="empty">
+            <td colspan="10" class="empty">
               শিক্ষার্থীর তথ্য লোড হচ্ছে...
             </td>
           </tr>
@@ -261,65 +360,121 @@
 
     <div class="service-grid">
 
+      <!-- প্রোফাইল -->
+
       <div class="service-card">
         <h3>শিক্ষার্থী প্রোফাইল</h3>
-        <p class="muted">শিক্ষার্থীর সম্পূর্ণ ব্যক্তিগত তথ্য দেখুন।</p>
-        <button type="button" class="service-btn"
-          onclick="showSelectedProfile()">
+        <p class="muted">
+          শিক্ষার্থীর সম্পূর্ণ ব্যক্তিগত তথ্য দেখুন।
+        </p>
+
+        <button
+          type="button"
+          class="service-btn"
+          onclick="showSelectedProfile()"
+        >
           প্রোফাইল দেখুন
         </button>
       </div>
 
+      <!-- আইডি কার্ড -->
+
       <div class="service-card">
         <h3>আইডি কার্ড</h3>
-        <p class="muted">শিক্ষার্থীর পরিচয়পত্র তৈরি ও প্রিন্ট করুন।</p>
-        <button type="button" class="service-btn"
-          onclick="printSelectedIDCard()">
+        <p class="muted">
+          শিক্ষার্থীর পরিচয়পত্র তৈরি ও প্রিন্ট করুন।
+        </p>
+
+        <button
+          type="button"
+          class="service-btn"
+          onclick="printSelectedIDCard()"
+        >
           আইডি কার্ড প্রিন্ট
         </button>
       </div>
 
+      <!-- সনদপত্র -->
+
       <div class="service-card">
         <h3>সনদপত্র</h3>
-        <p class="muted">শিক্ষার্থীর সনদপত্র প্রস্তুত করুন।</p>
-        <button type="button" class="service-btn"
-          onclick="serviceMessage('সনদপত্র')">
-          সনদপত্র
+        <p class="muted">
+          শিক্ষার্থীর সনদপত্র তৈরি, সংরক্ষণ ও প্রিন্ট করুন।
+        </p>
+
+        <button
+          type="button"
+          class="service-btn gold-btn"
+          onclick="printStudentCertificate()"
+        >
+          সনদপত্র তৈরি
         </button>
       </div>
+
+      <!-- ছাড়পত্র -->
 
       <div class="service-card">
         <h3>ছাড়পত্র (TC)</h3>
-        <p class="muted">শিক্ষার্থীর ছাড়পত্র প্রস্তুত করুন।</p>
-        <button type="button" class="service-btn"
-          onclick="serviceMessage('ছাড়পত্র')">
-          ছাড়পত্র
+        <p class="muted">
+          ছাড়পত্র নম্বর, তারিখ ও কারণসহ ছাড়পত্র তৈরি করুন।
+        </p>
+
+        <button
+          type="button"
+          class="service-btn red-btn"
+          onclick="printStudentTC()"
+        >
+          ছাড়পত্র তৈরি
         </button>
       </div>
 
+      <!-- অভিভাবক যোগাযোগ -->
+
       <div class="service-card">
         <h3>অভিভাবকের যোগাযোগ</h3>
-        <p class="muted">অভিভাবকের মোবাইল নম্বরে যোগাযোগ করুন।</p>
-        <button type="button" class="service-btn"
-          onclick="contactSelectedGuardian()">
+        <p class="muted">
+          অভিভাবকের মোবাইল নম্বরে যোগাযোগ করুন।
+        </p>
+
+        <button
+          type="button"
+          class="service-btn"
+          onclick="contactSelectedGuardian()"
+        >
           যোগাযোগ করুন
         </button>
       </div>
 
+      <!-- বকেয়া তথ্য -->
+
       <div class="service-card">
         <h3>বকেয়া তথ্য</h3>
-        <p class="muted">শিক্ষার্থীর বকেয়া হিসাব দেখুন।</p>
-        <button type="button" class="service-btn"
-          onclick="serviceMessage('বকেয়া তথ্য')">
+        <p class="muted">
+          শিক্ষার্থীর বকেয়া হিসাব দেখুন।
+        </p>
+
+        <button
+          type="button"
+          class="service-btn"
+          onclick="serviceMessage('বকেয়া তথ্য')"
+        >
           বকেয়া দেখুন
         </button>
       </div>
 
+      <!-- নোটিফিকেশন -->
+
       <div class="service-card">
         <h3>নোটিফিকেশন</h3>
-        <p class="muted">শিক্ষার্থী ও অভিভাবকের বিজ্ঞপ্তি।</p>
-        <button type="button" class="service-btn"
-          onclick="serviceMessage('নোটিফিকেশন')">
+        <p class="muted">
+          শিক্ষার্থী ও অভিভাবকের বিজ্ঞপ্তি।
+        </p>
+
+        <button
+          type="button"
+          class="service-btn"
+          onclick="serviceMessage('নোটিফিকেশন')"
+        >
           নোটিফিকেশন
         </button>
       </div>
@@ -336,11 +491,38 @@
 
   </section>
 
+  <!-- সনদ ও ছাড়পত্রের ইতিহাস -->
+
+  <section class="section">
+    <h2>সনদপত্র ও ছাড়পত্রের রেকর্ড</h2>
+
+    <p class="muted">
+      নির্বাচিত শিক্ষার্থীর আগে তৈরি করা সনদপত্র ও ছাড়পত্রের
+      রেকর্ড এখানে দেখা যাবে। প্রয়োজনে আবার প্রিন্ট করা যাবে।
+    </p>
+
+    <div
+      id="studentDocumentHistory"
+      class="document-history"
+    >
+      <p class="empty">
+        শিক্ষার্থী নির্বাচন করলে তার সনদ ও ছাড়পত্রের রেকর্ড দেখা যাবে।
+      </p>
+    </div>
+  </section>
+
 </main>
 
+<!-- ফুটার -->
+
 <footer class="footer">
-  <p>© 2026 Abdullah Hat Islamia Fazil (Degree) Madrasah</p>
+  <p>
+    © 2026 Abdullah Hat Islamia Fazil (Degree) Madrasah
+  </p>
+  <p>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</p>
 </footer>
+
+<!-- JavaScript -->
 
 <script src="script.js"></script>
 <script src="students.js"></script>
