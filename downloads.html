@@ -26,6 +26,30 @@
 <main class="container">
 
   <h2>ডাউনলোড সেন্টার</h2>
+  
+
+<section class="card">
+  <h3>নতুন ডকুমেন্ট যুক্ত করুন</h3>
+
+  <label>ডকুমেন্টের নাম</label>
+  <input type="text" id="downloadTitle" placeholder="ফাইলের নাম">
+
+  <label>বিভাগ</label>
+  <select id="downloadCategory">
+    <option value="formDownloads">ফরম ও আবেদনপত্র</option>
+    <option value="studentDownloads">শিক্ষার্থী ও অভিভাবক</option>
+    <option value="teacherDownloads">শিক্ষক-কর্মচারী</option>
+    <option value="otherDownloads">অন্যান্য ডকুমেন্ট</option>
+  </select>
+
+  <label>ডকুমেন্টের লিংক</label>
+  <input type="url" id="downloadUrl" placeholder="https://...">
+
+  <label>বিবরণ</label>
+  <textarea id="downloadDescription" placeholder="ডকুমেন্টের বিবরণ"></textarea>
+
+  <button type="button" id="saveDownload">ডকুমেন্ট যুক্ত করুন</button>
+</section>
 
   <section class="card">
     <h3>প্রয়োজনীয় ফরম ও আবেদনপত্র</h3>
