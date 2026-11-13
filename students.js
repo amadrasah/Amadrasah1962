@@ -1,386 +1,1013 @@
 
-/* ==========================================
-   STUDENT MANAGEMENT SYSTEM
+/* =====================================================
+   STUDENT MANAGEMENT
+   CERTIFICATE + TRANSFER CERTIFICATE + DOCUMENT HISTORY
    Abdullah Hat Islamia Fazil (Degree) Madrasah
-========================================== */
+===================================================== */
 
-(function () {
+(() => {
   "use strict";
 
-  const STORAGE_KEY = "madrasah_students";
+  const STUDENT_STORAGE_KEY = "madrasah_students";
+  const DOCUMENT_STORAGE_KEY = "madrasah_student_documents";
 
-  let selectedStudent = null;
+  let studentRecords = [];
+  let documentRecords = [];
+  let selectedStudentIndex = -1;
 
-  const searchInput = document.getElementById("studentSearch");
-  const classSelect = document.getElementById("studentClass");
-  const studentList = document.getElementById("studentList");
-  const studentCount = document.getElementById("studentCount");
+  const CLASS_NAMES = {
+    nurani1: "নূরানী ১ম জামাত",
+    nurani2: "নূরানী ২য় জামাত",
+    nurani3: "নূরানী ৩য় জামাত",
+    ebtedayi4: "ইবতেদায়ী ৪র্থ শ্রেণি",
+    ebtedayi5: "ইবতেদায়ী ৫ম শ্রেণি",
+    dakhil6: "দাখিল ৬ষ্ঠ শ্রেণি",
+    dakhil7: "দাখিল ৭ম শ্রেণি",
+    dakhil8: "দাখিল ৮ম শ্রেণি",
+    dakhil9: "দাখিল ৯ম শ্রেণি",
+    dakhil10: "দাখিল ১০ম শ্রেণি",
+    alim1: "আলিম ১ম বর্ষ",
+    alim2: "আলিম ২য় বর্ষ",
+    fazil1: "ফাজিল ১ম বর্ষ",
+    fazil2: "ফাজিল ২য় বর্ষ",
+    fazil3: "ফাজিল ৩য় বর্ষ"
+  };
 
-  if (!studentList) return;
+  const INSTITUTION = {
+    name: "আব্দুল্লাহ হাট ইসলামিয়া ফাজিল (ডিগ্রী) মাদ্রাসা",
+    address: "নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী",
+    phone: "01814-716405",
+    email: "amadrasah1962@gmail.com"
+  };
 
-  // শিক্ষার্থীর তথ্য সংগ্রহ
-  function getStudents() {
+  /* -----------------------------
+     STORAGE
+  ----------------------------- */
+
+  function readArray(key) {
     try {
-      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-      return Array.isArray(data) ? data : [];
+      const value = JSON.parse(localStorage.getItem(key) || "[]");
+      return Array.isArray(value) ? value : [];
     } catch (error) {
-      console.error("Student data error:", error);
+      console.error("Storage read error:", key, error);
       return [];
     }
   }
 
-  // একাধিক সম্ভাব্য নাম থেকে তথ্য পড়া
-  function getValue(student, keys) {
-    for (const key of keys) {
-      const value = student[key];
-
-      if (value !== undefined && value !== null && value !== "") {
-        return String(value);
-      }
-    }
-    return "";
+  function loadAllData() {
+    studentRecords = readArray(STUDENT_STORAGE_KEY);
+    documentRecords = readArray(DOCUMENT_STORAGE_KEY);
   }
 
-  function getID(student) {
-    return getValue(student, ["studentId", "id", "studentID"]);
+  function saveStudents() {
+    try {
+      localStorage.setItem(
+        STUDENT_STORAGE_KEY,
+        JSON.stringify(studentRecords)
+      );
+      return true;
+    } catch (error) {
+      alert("শিক্ষার্থীর তথ্য সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ পূর্ণ হতে পারে।");
+      console.error(error);
+      return false;
+    }
+  }
+
+  function saveDocuments() {
+    try {
+      localStorage.setItem(
+        DOCUMENT_STORAGE_KEY,
+        JSON.stringify(documentRecords)
+      );
+      return true;
+    } catch (error) {
+      alert("সনদ/ছাড়পত্রের রেকর্ড সংরক্ষণ করা যায়নি।");
+      console.error(error);
+      return false;
+    }
+  }
+
+  /* -----------------------------
+     GENERAL HELPERS
+  ----------------------------- */
+
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[character]);
   }
 
   function getName(student) {
-    return getValue(student, ["name", "studentName"]);
+    return student.name ||
+      student.studentName ||
+      student.student_name ||
+      "";
   }
 
-  function getClass(student) {
-    return getValue(student, ["className", "class", "class_name"]);
+  function getStudentId(student) {
+    return student.studentId ||
+      student.id ||
+      student.student_id ||
+      "";
   }
 
-  function getRoll(student) {
-    return getValue(student, ["roll", "studentRoll"]);
+  function getFather(student) {
+    return student.father ||
+      student.fatherName ||
+      student.father_name ||
+      "";
   }
 
-  // HTML নিরাপদভাবে প্রদর্শন
-  function safe(value) {
-    return String(value || "").replace(/[&<>"']/g, function (char) {
-      return {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-      }[char];
+  function getMother(student) {
+    return student.mother ||
+      student.motherName ||
+      student.mother_name ||
+      "";
+  }
+
+  function getMobile(student) {
+    return student.mobile ||
+      student.phone ||
+      student.guardianMobile ||
+      student.guardianPhone ||
+      "";
+  }
+
+  function getClassCode(student) {
+    return student.class ||
+      student.classCode ||
+      student.class_code ||
+      "";
+  }
+
+  function getClassName(student) {
+    return student.className ||
+      student.class_name ||
+      CLASS_NAMES[getClassCode(student)] ||
+      getClassCode(student) ||
+      "উল্লেখ নেই";
+  }
+
+  function getStatus(student) {
+    const status = String(
+      student.studentStatus ||
+      student.admissionStatus ||
+      student.status ||
+      ""
+    ).toLowerCase();
+
+    if (
+      student.transferredAt ||
+      status.includes("স্থানান্তর") ||
+      status.includes("transfer") ||
+      status.includes("left")
+    ) {
+      return "transferred";
+    }
+
+    return "current";
+  }
+
+  function getStatusText(student) {
+    return getStatus(student) === "transferred"
+      ? "স্থানান্তরিত"
+      : "বর্তমান";
+  }
+
+  function getToday() {
+    return new Date().toLocaleDateString("bn-BD");
+  }
+
+  function makeDocumentId() {
+    return "DOC-" + Date.now() + "-" +
+      Math.random().toString(36).slice(2, 7).toUpperCase();
+  }
+
+  function getSelectedStudent() {
+    if (
+      selectedStudentIndex < 0 ||
+      selectedStudentIndex >= studentRecords.length
+    ) {
+      alert("প্রথমে তালিকা থেকে একজন শিক্ষার্থী নির্বাচন করুন।");
+      return null;
+    }
+
+    return studentRecords[selectedStudentIndex];
+  }
+
+  function setMessage(message) {
+    const element = document.getElementById("studentServiceMessage");
+    if (element) element.textContent = message;
+  }
+
+  /* -----------------------------
+     CLASS DROPDOWN
+  ----------------------------- */
+
+  function populateClassFilter() {
+    const select = document.getElementById("studentClass");
+    if (!select) return;
+
+    const oldValue = select.value;
+
+    select.innerHTML = '<option value="">সকল শ্রেণি</option>';
+
+    const classSource =
+      typeof CLASS_LIST !== "undefined" && CLASS_LIST
+        ? CLASS_LIST
+        : CLASS_NAMES;
+
+    Object.keys(classSource).forEach(code => {
+      const option = document.createElement("option");
+      option.value = code;
+      option.textContent = classSource[code];
+      select.appendChild(option);
     });
+
+    if (oldValue) select.value = oldValue;
   }
 
-  // শিক্ষার্থী তালিকা প্রদর্শন
-  function renderStudents() {
-    const students = getStudents();
+  /* -----------------------------
+     STUDENT TABLE
+  ----------------------------- */
 
-    const query = searchInput
-      ? searchInput.value.trim().toLowerCase()
-      : "";
+  function renderStudentList() {
+    loadAllData();
 
-    const selectedClass = classSelect
-      ? classSelect.value
-      : "";
+    const tbody = document.getElementById("studentList");
+    const count = document.getElementById("studentCount");
 
-    const filtered = students
-      .map((student, originalIndex) => ({
-        student,
-        originalIndex
-      }))
-      .filter(item => {
-        const student = item.student;
+    if (!tbody) return;
 
-        const searchable = [
-          getName(student),
-          getID(student),
-          getRoll(student),
-          getClass(student),
-          getValue(student, ["mobile", "phone"]),
-          getValue(student, ["father", "fatherName"])
-        ];
+    const search = (
+      document.getElementById("studentSearch")?.value || ""
+    ).toLowerCase().trim();
 
-        const matchesSearch = !query ||
-          searchable.some(value => value.toLowerCase().includes(query));
+    const classFilter =
+      document.getElementById("studentClass")?.value || "";
 
-        const matchesClass = !selectedClass ||
-          getClass(student) === selectedClass;
+    const statusFilter =
+      document.getElementById("studentStatusFilter")?.value || "all";
 
-        return matchesSearch && matchesClass;
-      });
+    tbody.innerHTML = "";
 
-    studentCount.textContent =
-      "মোট শিক্ষার্থী: " + filtered.length + " জন";
+    let visibleCount = 0;
 
-    if (filtered.length === 0) {
-      studentList.innerHTML = `
+    studentRecords.forEach((student, index) => {
+      const name = getName(student);
+      const id = getStudentId(student);
+      const roll = student.roll || "";
+      const father = getFather(student);
+      const mobile = getMobile(student);
+      const classCode = getClassCode(student);
+      const className = getClassName(student);
+      const status = getStatus(student);
+
+      const searchText = [
+        name, id, roll, father, mobile, className,
+        student.year || ""
+      ].join(" ").toLowerCase();
+
+      if (search && !searchText.includes(search)) return;
+      if (classFilter && classFilter !== classCode) return;
+      if (statusFilter !== "all" && statusFilter !== status) return;
+
+      visibleCount++;
+
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${visibleCount}</td>
+        <td>${escapeHTML(id)}</td>
+        <td>${escapeHTML(roll)}</td>
+        <td>${escapeHTML(name)}</td>
+        <td>${escapeHTML(className)}</td>
+        <td>${escapeHTML(student.year || "")}</td>
+        <td>${escapeHTML(father)}</td>
+        <td>${escapeHTML(mobile)}</td>
+        <td class="${status === "transferred" ? "status-left" : "status-current"}">
+          ${getStatusText(student)}
+        </td>
+        <td>
+          <button type="button" onclick="selectStudent(${index})">
+            নির্বাচন
+          </button>
+        </td>
+      `;
+
+      tbody.appendChild(row);
+    });
+
+    if (count) count.textContent = visibleCount;
+
+    if (!visibleCount) {
+      tbody.innerHTML = `
         <tr>
-          <td colspan="9" class="empty">
-            ${students.length === 0
-              ? "এখনো কোনো শিক্ষার্থীর তথ্য সংরক্ষণ করা হয়নি। ভর্তি পেজ থেকে শিক্ষার্থী যোগ করুন।"
-              : "কোনো শিক্ষার্থী পাওয়া যায়নি।"}
+          <td colspan="10" class="empty">
+            কোনো শিক্ষার্থী পাওয়া যায়নি।
           </td>
         </tr>
       `;
-      return;
     }
-
-    studentList.innerHTML = filtered.map((item, index) => {
-      const student = item.student;
-
-      return `
-        <tr>
-          <td>${index + 1}</td>
-          <td>${safe(getID(student) || "—")}</td>
-          <td>${safe(getRoll(student) || "—")}</td>
-          <td>${safe(getName(student) || "—")}</td>
-          <td>${safe(getClass(student) || "—")}</td>
-          <td>${safe(getValue(student, ["year", "admissionYear"]) || "—")}</td>
-          <td>${safe(getValue(student, ["father", "fatherName"]) || "—")}</td>
-          <td>${safe(getValue(student, ["mobile", "phone"]) || "—")}</td>
-          <td>
-            <button
-              type="button"
-              class="select-student-btn"
-              onclick="selectStudent(${item.originalIndex})">
-              নির্বাচন
-            </button>
-          </td>
-        </tr>
-      `;
-    }).join("");
   }
 
-  // শিক্ষার্থী নির্বাচন
-  window.selectStudent = function (index) {
-    const students = getStudents();
+  /* -----------------------------
+     STUDENT PROFILE
+  ----------------------------- */
 
-    if (!Number.isInteger(index) || !students[index]) {
-      alert("শিক্ষার্থীর তথ্য পাওয়া যায়নি। তালিকাটি আবার দেখুন।");
-      selectedStudent = null;
-      return;
-    }
+  function selectStudent(index) {
+    loadAllData();
 
-    selectedStudent = students[index];
+    if (!studentRecords[index]) return;
 
-    const message = document.getElementById("studentServiceMessage");
+    selectedStudentIndex = index;
+    const student = studentRecords[index];
 
-    if (message) {
-      message.textContent =
-        "নির্বাচিত শিক্ষার্থী: " +
-        getName(selectedStudent) +
-        " | আইডি: " + getID(selectedStudent);
-    }
-  };
-
-  // নির্বাচিত শিক্ষার্থী যাচাই
-  function requireStudent() {
-    if (!selectedStudent) {
-      alert("প্রথমে শিক্ষার্থী তালিকা থেকে একজন শিক্ষার্থী নির্বাচন করুন।");
-      return false;
-    }
-
-    return true;
-  }
-
-  // শিক্ষার্থী প্রোফাইল
-  window.showSelectedProfile = function () {
-    if (!requireStudent()) return;
-
-    const s = selectedStudent;
     const output = document.getElementById("studentProfileOutput");
-
     if (!output) return;
 
-    const rows = [
-      ["শিক্ষার্থী আইডি", getID(s)],
-      ["শিক্ষার্থীর নাম", getName(s)],
-      ["রোল নম্বর", getRoll(s)],
-      ["শ্রেণি", getClass(s)],
-      ["শিক্ষাবর্ষ", getValue(s, ["year", "admissionYear"])],
-      ["পিতার নাম", getValue(s, ["father", "fatherName"])],
-      ["মাতার নাম", getValue(s, ["mother", "motherName"])],
-      ["জন্ম তারিখ", getValue(s, ["dob", "birthDate"])],
-      ["জন্ম নিবন্ধন", getValue(s, ["birthReg", "birthRegistration"])],
-      ["লিঙ্গ", getValue(s, ["gender"])],
-      ["ধর্ম", getValue(s, ["religion"])],
-      ["রক্তের গ্রুপ", getValue(s, ["blood", "bloodGroup"])],
-      ["মোবাইল", getValue(s, ["mobile", "phone"])],
-      ["পূর্ববর্তী প্রতিষ্ঠান", getValue(s, ["previousSchool"])],
-      ["ভর্তির তারিখ", getValue(s, ["admissionDate"])],
-      ["ঠিকানা", getValue(s, ["address"])]
+    const fields = [
+      ["শিক্ষার্থীর নাম", getName(student)],
+      ["শিক্ষার্থী আইডি", getStudentId(student)],
+      ["শ্রেণি", getClassName(student)],
+      ["রোল", student.roll || ""],
+      ["শিক্ষাবর্ষ", student.year || ""],
+      ["পিতার নাম", getFather(student)],
+      ["মাতার নাম", getMother(student)],
+      ["জন্মতারিখ", student.dob || student.dateOfBirth || ""],
+      ["জন্মনিবন্ধন", student.birthReg || student.birthRegistration || ""],
+      ["মোবাইল", getMobile(student)],
+      ["ঠিকানা", student.address || ""],
+      ["ভর্তির তারিখ", student.admissionDate || ""],
+      ["বর্তমান অবস্থা", getStatusText(student)]
     ];
 
-    output.innerHTML = `
-      <h2>শিক্ষার্থী প্রোফাইল</h2>
+    output.classList.remove("empty");
 
-      <div class="table-wrap">
-        <table>
-          <tbody>
-            ${rows.map(row => `
-              <tr>
-                <th>${safe(row[0])}</th>
-                <td>${safe(row[1] || "তথ্য নেই")}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
+    output.innerHTML = `
+      <div class="profile-grid">
+        ${fields.map(([label, value]) => `
+          <div class="profile-item">
+            <b>${escapeHTML(label)}:</b><br>
+            ${escapeHTML(value || "উল্লেখ নেই")}
+          </div>
+        `).join("")}
       </div>
     `;
 
-    output.style.display = "block";
-    output.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+    setMessage("নির্বাচিত শিক্ষার্থী: " + getName(student));
+    renderDocumentHistory();
+  }
 
-  // আইডি কার্ড প্রিন্ট
-  window.printSelectedIDCard = function () {
-    if (!requireStudent()) return;
+  function showSelectedProfile() {
+    const student = getSelectedStudent();
+    if (!student) return;
 
-    const s = selectedStudent;
+    document.getElementById("studentProfileOutput")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
-    const card = `
+  /* -----------------------------
+     DOCUMENT DATA
+  ----------------------------- */
+
+  function makeStudentSnapshot(student) {
+    return {
+      name: getName(student),
+      studentId: getStudentId(student),
+      father: getFather(student),
+      mother: getMother(student),
+      className: getClassName(student),
+      roll: student.roll || "",
+      year: student.year || "",
+      dob: student.dob || student.dateOfBirth || "",
+      birthReg: student.birthReg || student.birthRegistration || "",
+      address: student.address || "",
+      mobile: getMobile(student),
+      admissionDate: student.admissionDate || ""
+    };
+  }
+
+  function makeDocumentRecord(type, student, extra) {
+    return {
+      documentId: makeDocumentId(),
+      type,
+      typeName: type === "certificate" ? "সনদপত্র" : "ছাড়পত্র",
+      studentId: getStudentId(student),
+      studentName: getName(student),
+      issueDate: extra.issueDate,
+      serial: extra.serial,
+      snapshot: makeStudentSnapshot(student),
+      extra: extra,
+      createdAt: new Date().toISOString()
+    };
+  }
+
+  /* -----------------------------
+     CERTIFICATE
+  ----------------------------- */
+
+  function printStudentCertificate() {
+    loadAllData();
+
+    const student = getSelectedStudent();
+    if (!student) return;
+
+    const issueDate = prompt(
+      "সনদ প্রদানের তারিখ লিখুন:",
+      getToday()
+    );
+    if (issueDate === null) return;
+
+    const serial = prompt("সনদ নম্বর লিখুন:", "");
+    if (serial === null) return;
+
+    const extra = {
+      issueDate: issueDate.trim(),
+      serial: serial.trim()
+    };
+
+    const record = makeDocumentRecord(
+      "certificate",
+      student,
+      extra
+    );
+
+    documentRecords.unshift(record);
+
+    if (!saveDocuments()) {
+      documentRecords.shift();
+      return;
+    }
+
+    renderDocumentHistory();
+    printDocumentRecord(record);
+  }
+
+  /* -----------------------------
+     TRANSFER CERTIFICATE
+  ----------------------------- */
+
+  function printStudentTC() {
+    loadAllData();
+
+    const student = getSelectedStudent();
+    if (!student) return;
+
+    if (getStatus(student) === "transferred") {
+      const proceed = confirm(
+        "এই শিক্ষার্থীর ছাড়পত্র আগেই ইস্যু করা হয়েছে।\n" +
+        "আপনি কি নতুন ছাড়পত্র তৈরি করতে চান?"
+      );
+
+      if (!proceed) return;
+    }
+
+    const issueDate = prompt(
+      "ছাড়পত্র প্রদানের তারিখ লিখুন:",
+      getToday()
+    );
+    if (issueDate === null) return;
+
+    const serial = prompt("ছাড়পত্র নম্বর লিখুন:", "");
+    if (serial === null) return;
+
+    const reason = prompt(
+      "ছাড়পত্র নেওয়ার কারণ লিখুন:",
+      "অভিভাবকের আবেদনের পরিপ্রেক্ষিতে"
+    );
+    if (reason === null) return;
+
+    const conduct = prompt(
+      "আচরণ ও চরিত্র সম্পর্কে মন্তব্য লিখুন:",
+      "সন্তোষজনক"
+    );
+    if (conduct === null) return;
+
+    const extra = {
+      issueDate: issueDate.trim(),
+      serial: serial.trim(),
+      reason: reason.trim(),
+      conduct: conduct.trim()
+    };
+
+    const record = makeDocumentRecord(
+      "tc",
+      student,
+      extra
+    );
+
+    documentRecords.unshift(record);
+
+    if (!saveDocuments()) {
+      documentRecords.shift();
+      return;
+    }
+
+    // শিক্ষার্থীর মূল রেকর্ড মুছে ফেলা হবে না।
+    // শুধু অবস্থা পরিবর্তন করে রাখা হবে।
+    student.studentStatus = "স্থানান্তরিত";
+    student.transferredAt = issueDate.trim();
+    student.tcNumber = serial.trim();
+
+    if (!saveStudents()) {
+      alert("ছাড়পত্রের রেকর্ড সংরক্ষিত হয়েছে, কিন্তু শিক্ষার্থীর অবস্থা পরিবর্তন করা যায়নি।");
+      return;
+    }
+
+    renderStudentList();
+    renderDocumentHistory();
+    selectStudent(selectedStudentIndex);
+
+    printDocumentRecord(record);
+
+    setMessage("ছাড়পত্র ইস্যু হয়েছে। শিক্ষার্থী স্থানান্তরিত হিসেবে চিহ্নিত হয়েছে।");
+  }
+
+  /* -----------------------------
+     DOCUMENT PRINT TEMPLATE
+  ----------------------------- */
+
+  function buildDocumentHTML(record) {
+    const student = record.snapshot || {};
+    const extra = record.extra || {};
+    const isTC = record.type === "tc";
+
+    const title = isTC ? "ছাড়পত্র" : "প্রত্যয়নপত্র";
+
+    const bodyText = isTC
+      ? `
+        এই মর্মে প্রত্যয়ন করা যাচ্ছে যে,
+        <b>${escapeHTML(student.name)}</b>,
+        পিতা: <b>${escapeHTML(student.father || "উল্লেখ নেই")}</b>,
+        মাতা: <b>${escapeHTML(student.mother || "উল্লেখ নেই")}</b>,
+        অত্র প্রতিষ্ঠানের একজন শিক্ষার্থী ছিল।
+
+        <div class="details">
+          শিক্ষার্থীর আইডি: ${escapeHTML(student.studentId)}<br>
+          সর্বশেষ অধ্যয়নরত শ্রেণি: ${escapeHTML(student.className)}<br>
+          রোল নম্বর: ${escapeHTML(student.roll)}<br>
+          শিক্ষাবর্ষ: ${escapeHTML(student.year)}<br>
+          জন্মতারিখ: ${escapeHTML(student.dob)}<br>
+          আচরণ ও চরিত্র: ${escapeHTML(extra.conduct || "উল্লেখ নেই")}<br>
+        </div>
+
+        ছাড়পত্র প্রদানের কারণ:
+        <b>${escapeHTML(extra.reason || "উল্লেখ নেই")}</b>।
+
+        প্রতিষ্ঠানের সংরক্ষিত রেকর্ড অনুযায়ী তার তথ্য উল্লেখ করা হলো।
+        তার ভবিষ্যৎ জীবনের সর্বাঙ্গীণ উন্নতি ও সাফল্য কামনা করি।
+      `
+      : `
+        এই মর্মে প্রত্যয়ন করা যাচ্ছে যে,
+        <b>${escapeHTML(student.name)}</b>,
+        পিতা: <b>${escapeHTML(student.father || "উল্লেখ নেই")}</b>,
+        মাতা: <b>${escapeHTML(student.mother || "উল্লেখ নেই")}</b>,
+        এই প্রতিষ্ঠানের একজন শিক্ষার্থী।
+
+        <div class="details">
+          শিক্ষার্থীর আইডি: ${escapeHTML(student.studentId)}<br>
+          শ্রেণি/জামাত: ${escapeHTML(student.className)}<br>
+          রোল নম্বর: ${escapeHTML(student.roll)}<br>
+          শিক্ষাবর্ষ: ${escapeHTML(student.year)}<br>
+          জন্মতারিখ: ${escapeHTML(student.dob)}<br>
+          ঠিকানা: ${escapeHTML(student.address)}<br>
+        </div>
+
+        প্রতিষ্ঠানের সংরক্ষিত তথ্য অনুযায়ী উপরোক্ত বিবরণ প্রদান করা হলো।
+        আমি তার সর্বাঙ্গীণ সাফল্য ও উজ্জ্বল ভবিষ্যৎ কামনা করি।
+      `;
+
+    return `
+      <div class="document-header">
+        <h1>${escapeHTML(INSTITUTION.name)}</h1>
+        <h2>${escapeHTML(INSTITUTION.address)}</h2>
+        <p>মোবাইল: ${escapeHTML(INSTITUTION.phone)}</p>
+      </div>
+
+      <div class="serial">
+        ${isTC ? "ছাড়পত্র" : "সনদ"} নম্বর:
+        ${escapeHTML(extra.serial || "................")}
+      </div>
+
+      <div class="document-title">
+        <span>${title}</span>
+      </div>
+
+      <div class="document-body">
+        ${bodyText}
+      </div>
+
+      <div class="issue-date">
+        প্রদানের তারিখ: ${escapeHTML(extra.issueDate || "")}
+      </div>
+
+      <div class="signature-row">
+        <div class="signature">
+          <div class="signature-line"></div>
+          প্রস্তুতকারীর স্বাক্ষর
+        </div>
+
+        <div class="signature">
+          <div class="signature-line"></div>
+          যাচাইকারীর স্বাক্ষর
+        </div>
+
+        <div class="signature">
+          <div class="signature-line"></div>
+          অধ্যক্ষের স্বাক্ষর
+        </div>
+      </div>
+
+      <div class="document-footer">
+        ${escapeHTML(INSTITUTION.name)}
+      </div>
+    `;
+  }
+
+  function printDocumentRecord(record) {
+    const printWindow = window.open("", "_blank");
+
+    if (!printWindow) {
+      alert("প্রিন্ট পেজ খোলা যাচ্ছে না। ব্রাউজারে পপ-আপ অনুমতি চালু করুন।");
+      return;
+    }
+
+    const title = record.type === "tc" ? "ছাড়পত্র" : "সনদপত্র";
+
+    printWindow.document.open();
+    printWindow.document.write(`
       <!DOCTYPE html>
       <html lang="bn">
       <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>শিক্ষার্থী আইডি কার্ড</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>${title}</title>
 
         <style>
+          @page {
+            size: A4 portrait;
+            margin: 18mm;
+          }
+
+          * { box-sizing: border-box; }
+
           body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
+            margin: 0;
+            color: #111;
+            font-family: "Noto Serif Bengali", "SolaimanLipi",
+                         "Kalpurush", serif;
+            font-size: 17px;
+            line-height: 1.9;
           }
 
-          .card {
-            width: 330px;
+          .document {
+            min-height: 255mm;
             border: 2px solid #075e3a;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
+            padding: 12mm;
+            position: relative;
           }
 
-          h3 {
+          .document-header {
+            text-align: center;
+            border-bottom: 3px double #075e3a;
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+          }
+
+          .document-header h1 {
+            font-size: 24px;
+            margin: 0;
             color: #075e3a;
-            margin: 5px;
           }
 
-          .line {
-            border-top: 1px solid #d4a017;
-            margin: 10px 0;
+          .document-header h2 {
+            font-size: 17px;
+            margin: 3px 0;
+            font-weight: normal;
           }
 
-          p {
-            margin: 8px;
-            text-align: left;
+          .document-header p {
+            font-size: 13px;
+            margin: 0;
           }
 
-          .footer {
+          .serial {
+            text-align: right;
+            font-size: 14px;
+          }
+
+          .document-title {
             text-align: center;
-            font-size: 12px;
+            margin: 22px 0 28px;
+          }
+
+          .document-title span {
+            display: inline-block;
+            border: 2px solid #075e3a;
+            padding: 3px 30px;
+            font-size: 23px;
+            font-weight: bold;
+          }
+
+          .document-body {
+            text-align: justify;
+            font-size: 18px;
+            min-height: 125mm;
+          }
+
+          .details {
+            margin: 18px 0;
+            line-height: 2.1;
+          }
+
+          .issue-date {
+            margin-top: 24px;
+          }
+
+          .signature-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            align-items: end;
+            margin-top: 55px;
+            text-align: center;
+            font-size: 14px;
+            page-break-inside: avoid;
+          }
+
+          .signature {
+            min-width: 0;
+            white-space: nowrap;
+          }
+
+          .signature-line {
+            border-top: 1px solid #111;
+            margin: 0 4px 8px;
+            height: 1px;
+          }
+
+          .document-footer {
+            text-align: center;
+            font-size: 11px;
+            margin-top: 20px;
+            color: #555;
+          }
+
+          @media screen {
+            body {
+              background: #eee;
+              padding: 20px;
+            }
+
+            .document {
+              max-width: 850px;
+              margin: auto;
+              background: white;
+              box-shadow: 0 0 8px #aaa;
+            }
           }
 
           @media print {
-            body { padding: 0; }
+            .document {
+              min-height: 255mm;
+            }
           }
         </style>
       </head>
 
       <body>
-        <div class="card">
-          <h3>আব্দুল্লাহ হাট ইসলামিয়া ফাজিল (ডিগ্রী) মাদ্রাসা</h3>
-          <small>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</small>
-
-          <div class="line"></div>
-
-          <h3>শিক্ষার্থী পরিচয়পত্র</h3>
-
-          <p><b>নাম:</b> ${safe(getName(s))}</p>
-          <p><b>আইডি:</b> ${safe(getID(s))}</p>
-          <p><b>রোল:</b> ${safe(getRoll(s))}</p>
-          <p><b>শ্রেণি:</b> ${safe(getClass(s))}</p>
-          <p><b>শিক্ষাবর্ষ:</b> ${safe(getValue(s, ["year", "admissionYear"]))}</p>
-          <p><b>পিতা:</b> ${safe(getValue(s, ["father", "fatherName"]))}</p>
-          <p><b>মোবাইল:</b> ${safe(getValue(s, ["mobile", "phone"]))}</p>
-
-          <div class="line"></div>
-
-          <div class="footer">প্রতিষ্ঠান কর্তৃপক্ষ</div>
+        <div class="document">
+          ${buildDocumentHTML(record)}
         </div>
 
         <script>
-          window.onload = function () {
-            window.print();
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+            }, 600);
           };
         <\/script>
       </body>
       </html>
+    `);
+
+    printWindow.document.close();
+  }
+
+  /* -----------------------------
+     DOCUMENT HISTORY
+  ----------------------------- */
+
+  function renderDocumentHistory() {
+    const container = document.getElementById("studentDocumentHistory");
+    if (!container) return;
+
+    loadAllData();
+
+    const selected = getSelectedStudent();
+    const selectedId = selected ? getStudentId(selected) : "";
+
+    let records = documentRecords;
+
+    if (selectedId) {
+      records = records.filter(record =>
+        String(record.studentId) === String(selectedId)
+      );
+    }
+
+    if (!records.length) {
+      container.innerHTML = `
+        <p class="empty">এই শিক্ষার্থীর কোনো সনদ বা ছাড়পত্রের রেকর্ড নেই।</p>
+      `;
+      return;
+    }
+
+    container.innerHTML = records.map(record => `
+      <div class="history-item">
+        <div>
+          <strong>${escapeHTML(record.typeName || "ডকুমেন্ট")}</strong><br>
+          <span>নাম: ${escapeHTML(record.studentName || "")}</span><br>
+          <span>নম্বর: ${escapeHTML(record.serial || "নম্বর নেই")}</span><br>
+          <span>তারিখ: ${escapeHTML(record.issueDate || "")}</span>
+        </div>
+
+        <button type="button"
+          onclick="reprintStudentDocument('${escapeHTML(record.documentId)}')">
+          পুনরায় প্রিন্ট
+        </button>
+      </div>
+    `).join("");
+  }
+
+  function reprintStudentDocument(documentId) {
+    loadAllData();
+
+    const record = documentRecords.find(item =>
+      item.documentId === documentId
+    );
+
+    if (!record) {
+      alert("ডকুমেন্টের রেকর্ড পাওয়া যায়নি।");
+      return;
+    }
+
+    printDocumentRecord(record);
+  }
+
+  /* -----------------------------
+     ID CARD
+  ----------------------------- */
+
+  function printSelectedIDCard() {
+    const student = getSelectedStudent();
+    if (!student) return;
+
+    const html = `
+      <div style="
+        width:340px;
+        margin:25px auto;
+        padding:18px;
+        border:2px solid #075e3a;
+        border-radius:10px;
+        text-align:center;
+        font-family:serif;
+      ">
+        <h3>${escapeHTML(INSTITUTION.name)}</h3>
+        <p>${escapeHTML(INSTITUTION.address)}</p>
+        <hr>
+        <h3>শিক্ষার্থী পরিচয়পত্র</h3>
+        <p><b>নাম:</b> ${escapeHTML(getName(student))}</p>
+        <p><b>আইডি:</b> ${escapeHTML(getStudentId(student))}</p>
+        <p><b>শ্রেণি:</b> ${escapeHTML(getClassName(student))}</p>
+        <p><b>রোল:</b> ${escapeHTML(student.roll || "")}</p>
+        <p><b>মোবাইল:</b> ${escapeHTML(getMobile(student))}</p>
+      </div>
     `;
 
     const printWindow = window.open("", "_blank");
-
     if (!printWindow) {
-      alert("প্রিন্ট উইন্ডো খুলতে পারেনি। ব্রাউজারের Pop-up অনুমতি দিন।");
+      alert("প্রিন্ট পেজ খোলা যাচ্ছে না। পপ-আপ অনুমতি চালু করুন।");
       return;
     }
 
-    printWindow.document.open();
-    printWindow.document.write(card);
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="bn">
+      <head>
+        <meta charset="UTF-8">
+        <title>শিক্ষার্থী পরিচয়পত্র</title>
+        <style>
+          body{font-family:serif;padding:20px}
+          @media print{@page{size:A4;margin:15mm}}
+        </style>
+      </head>
+      <body>
+        ${html}
+        <script>
+          window.onload=function(){setTimeout(function(){window.print()},400)};
+        <\/script>
+      </body>
+      </html>
+    `);
     printWindow.document.close();
-  };
+  }
 
-  // অভিভাবকের সঙ্গে যোগাযোগ
-  window.contactSelectedGuardian = function () {
-    if (!requireStudent()) return;
+  /* -----------------------------
+     GUARDIAN CONTACT
+  ----------------------------- */
 
-    const phone = getValue(selectedStudent, [
-      "guardianMobile",
-      "guardianPhone",
-      "mobile",
-      "phone"
-    ]);
+  function contactSelectedGuardian() {
+    const student = getSelectedStudent();
+    if (!student) return;
 
-    if (!phone) {
-      alert("এই শিক্ষার্থীর অভিভাবকের মোবাইল নম্বর সংরক্ষিত নেই।");
+    const mobile = getMobile(student);
+
+    if (!mobile) {
+      alert("এই শিক্ষার্থীর মোবাইল নম্বর দেওয়া নেই।");
       return;
     }
 
-    if (confirm("এই নম্বরে ফোন করবেন?\n" + phone)) {
-      window.location.href =
-        "tel:" + phone.replace(/[^\d+]/g, "");
+    window.location.href = "tel:" + String(mobile).replace(/[^\d+]/g, "");
+  }
+
+  /* -----------------------------
+     COMPATIBILITY BUTTON
+  ----------------------------- */
+
+  function serviceMessage(serviceName) {
+    const value = String(serviceName || "").toLowerCase();
+
+    if (value.includes("সনদ") || value.includes("certificate")) {
+      printStudentCertificate();
+    } else if (
+      value.includes("টি") ||
+      value.includes("tc") ||
+      value.includes("ছাড়") ||
+      value.includes("ছাড়")
+    ) {
+      printStudentTC();
+    } else if (value.includes("আইডি")) {
+      printSelectedIDCard();
+    } else {
+      alert("এই সেবাটি এই সংস্করণে যুক্ত করা হয়নি।");
     }
-  };
-
-  // এখনো সংযুক্ত না হওয়া সেবার বার্তা
-  window.serviceMessage = function (service) {
-    if (!requireStudent()) return;
-
-    alert(
-      service + " সেবা পরবর্তী ধাপে সংযুক্ত করা হবে।\n\n" +
-      "শিক্ষার্থীর নাম: " + getName(selectedStudent) +
-      "\nশিক্ষার্থী আইডি: " + getID(selectedStudent)
-    );
-  };
-
-  // অনুসন্ধান
-  if (searchInput) {
-    searchInput.addEventListener("input", renderStudents);
   }
 
-  if (classSelect) {
-    classSelect.addEventListener("change", renderStudents);
+  /* -----------------------------
+     INITIALIZE
+  ----------------------------- */
+
+  function initializeStudentModule() {
+    loadAllData();
+    populateClassFilter();
+    renderStudentList();
+    renderDocumentHistory();
+
+    document.getElementById("studentSearch")
+      ?.addEventListener("input", renderStudentList);
+
+    document.getElementById("studentClass")
+      ?.addEventListener("change", renderStudentList);
+
+    document.getElementById("studentStatusFilter")
+      ?.addEventListener("change", renderStudentList);
   }
 
-  // অন্য ট্যাবে তথ্য পরিবর্তন হলে তালিকা আপডেট
-  window.addEventListener("storage", function (event) {
-    if (event.key === STORAGE_KEY) {
-      selectedStudent = null;
-      renderStudents();
+  window.addEventListener("storage", event => {
+    if (
+      event.key === STUDENT_STORAGE_KEY ||
+      event.key === DOCUMENT_STORAGE_KEY
+    ) {
+      loadAllData();
+      renderStudentList();
+      renderDocumentHistory();
     }
   });
 
-  // অন্য স্ক্রিপ্ট থেকেও তালিকা রিফ্রেশ করা যাবে
-  window.refreshStudentList = renderStudents;
+  // HTML-এর বাটন থেকে ব্যবহারের জন্য
+  window.selectStudent = selectStudent;
+  window.showSelectedProfile = showSelectedProfile;
+  window.printSelectedIDCard = printSelectedIDCard;
+  window.printStudentCertificate = printStudentCertificate;
+  window.printStudentTC = printStudentTC;
+  window.contactSelectedGuardian = contactSelectedGuardian;
+  window.serviceMessage = serviceMessage;
+  window.reprintStudentDocument = reprintStudentDocument;
+  window.refreshStudentList = renderStudentList;
+  window.showStudentList = renderStudentList;
 
-  renderStudents();
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeStudentModule
+    );
+  } else {
+    initializeStudentModule();
+  }
 
 })();
