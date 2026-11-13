@@ -2,11 +2,161 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ভর্তি ব্যবস্থাপনা | আব্দুল্লাহ হাট মাদ্রাসা</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ভর্তি ব্যবস্থাপনা | আব্দুল্লাহ হাট মাদ্রাসা</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+.admission-page {
+  width: 94%;
+  max-width: 1100px;
+  margin: 25px auto;
+  color: #222;
+}
+
+.admission-page .admission-card {
+  background: #fff;
+  padding: 22px;
+  margin: 20px 0;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,.09);
+}
+
+.admission-page h2,
+.admission-page h3 {
+  color: #075e3a;
+}
+
+#admissionForm {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 14px 18px;
+}
+
+#admissionForm .field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+#admissionForm label {
+  font-weight: 600;
+}
+
+#admissionForm input,
+#admissionForm select,
+#admissionForm textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  background: white;
+}
+
+#admissionForm textarea {
+  min-height: 75px;
+}
+
+#admissionForm input:focus,
+#admissionForm select:focus,
+#admissionForm textarea:focus {
+  outline: none;
+  border-color: #075e3a;
+  box-shadow: 0 0 0 2px rgba(7,94,58,.12);
+}
+
+#admissionForm .full {
+  grid-column: 1/-1;
+}
+
+#admissionForm button {
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: #075e3a;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#admissionForm button[type="reset"] {
+  background: #777;
+}
+
+#admissionStudentId,
+#admissionRoll {
+  background: #f0f4f1 !important;
+  font-weight: bold;
+}
+
+#admissionMessage {
+  font-weight: bold;
+  color: #075e3a;
+}
+
+.admission-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.admission-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admission-page table {
+  width: 100%;
+  min-width: 750px;
+  border-collapse: collapse;
+}
+
+.admission-page th,
+.admission-page td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.admission-page th {
+  background: #075e3a;
+  color: white;
+}
+
+.admission-page tbody tr:nth-child(even) {
+  background: #f5f8f6;
+}
+
+@media(max-width:650px) {
+  .admission-page {
+    width: 94%;
+    margin: 15px auto;
+  }
+
+  .admission-page .admission-card {
+    padding: 14px;
+  }
+
+  #admissionForm {
+    grid-template-columns: 1fr;
+  }
+
+  #admissionForm .full {
+    grid-column: auto;
+  }
+}
+</style>
 </head>
+
 <body>
 
 <header class="header">
@@ -34,83 +184,183 @@
   </div>
 </nav>
 
-<main class="container">
-  <section class="welcome">
+<main class="admission-page">
+
+  <section class="admission-card">
     <h2>শিক্ষার্থী ভর্তি ব্যবস্থাপনা</h2>
-    <p>নতুন শিক্ষার্থী ভর্তি ও ভর্তি সংক্রান্ত তথ্য পরিচালনা।</p>
+    <p>নতুন শিক্ষার্থীর ভর্তি ও ভর্তি সংক্রান্ত তথ্য পরিচালনা।</p>
   </section>
 
-  <section class="section">
-    <h2>নতুন শিক্ষার্থীর ভর্তি ফরম</h2>
+  <section class="admission-card">
+    <h3>নতুন শিক্ষার্থীর ভর্তি ফরম</h3>
 
     <form id="admissionForm">
 
-      <label for="admissionYear">শিক্ষাবর্ষ</label>
-      <select id="admissionYear" name="year" required>
-        <option value="">শিক্ষাবর্ষ নির্বাচন করুন</option>
-        <option value="2026">2026</option>
-        <option value="2027">2027</option>
-        <option value="2028">2028</option>
-      </select>
+      <div class="field">
+        <label for="admissionYear">শিক্ষাবর্ষ *</label>
+        <select id="admissionYear" required>
+          <option value="">শিক্ষাবর্ষ নির্বাচন করুন</option>
+        </select>
+      </div>
 
-      <label for="admissionClass">শ্রেণি</label>
-      <select id="admissionClass" name="class" required>
-        <option value="">শ্রেণি নির্বাচন করুন</option>
-        <option value="nurani1">নূরানী ১ম জামাত</option>
-        <option value="nurani2">নূরানী ২য় জামাত</option>
-        <option value="nurani3">নূরানী ৩য় জামাত</option>
-        <option value="ebtedayi4">ইবতেদায়ী ৪র্থ শ্রেণি</option>
-        <option value="ebtedayi5">ইবতেদায়ী ৫ম শ্রেণি</option>
-        <option value="dakhil6">দাখিল ৬ষ্ঠ শ্রেণি</option>
-        <option value="dakhil7">দাখিল ৭ম শ্রেণি</option>
-        <option value="dakhil8">দাখিল ৮ম শ্রেণি</option>
-        <option value="dakhil9">দাখিল ৯ম শ্রেণি</option>
-        <option value="dakhil10">দাখিল ১০ম শ্রেণি</option>
-        <option value="alim1">আলিম ১ম বর্ষ</option>
-        <option value="alim2">আলিম ২য় বর্ষ</option>
-        <option value="fazil1">ফাজিল ১ম বর্ষ</option>
-        <option value="fazil2">ফাজিল ২য় বর্ষ</option>
-        <option value="fazil3">ফাজিল ৩য় বর্ষ</option>
-      </select>
+      <div class="field">
+        <label for="admissionClass">শ্রেণি *</label>
+        <select id="admissionClass" required>
+          <option value="">শ্রেণি নির্বাচন করুন</option>
+          <option value="nurani1">নূরানী ১ম জামাত</option>
+          <option value="nurani2">নূরানী ২য় জামাত</option>
+          <option value="nurani3">নূরানী ৩য় জামাত</option>
+          <option value="ebtedayi4">ইবতেদায়ী ৪র্থ শ্রেণি</option>
+          <option value="ebtedayi5">ইবতেদায়ী ৫ম শ্রেণি</option>
+          <option value="dakhil6">দাখিল ৬ষ্ঠ শ্রেণি</option>
+          <option value="dakhil7">দাখিল ৭ম শ্রেণি</option>
+          <option value="dakhil8">দাখিল ৮ম শ্রেণি</option>
+          <option value="dakhil9">দাখিল ৯ম শ্রেণি</option>
+          <option value="dakhil10">দাখিল ১০ম শ্রেণি</option>
+          <option value="alim1">আলিম ১ম বর্ষ</option>
+          <option value="alim2">আলিম ২য় বর্ষ</option>
+          <option value="fazil1">ফাজিল ১ম বর্ষ</option>
+          <option value="fazil2">ফাজিল ২য় বর্ষ</option>
+          <option value="fazil3">ফাজিল ৩য় বর্ষ</option>
+        </select>
+      </div>
 
-      <label for="admissionStudentId">শিক্ষার্থী আইডি</label>
-      <input id="admissionStudentId" name="studentId" type="text" readonly placeholder="স্বয়ংক্রিয়ভাবে তৈরি হবে">
+      <div class="field">
+        <label for="admissionStudentId">শিক্ষার্থী আইডি</label>
+        <input id="admissionStudentId" readonly placeholder="স্বয়ংক্রিয়ভাবে তৈরি হবে">
+      </div>
 
-      <label for="admissionRoll">রোল নম্বর</label>
-      <input id="admissionRoll" name="roll" type="text" readonly placeholder="স্বয়ংক্রিয়ভাবে তৈরি হবে">
+      <div class="field">
+        <label for="admissionRoll">রোল নম্বর</label>
+        <input id="admissionRoll" readonly placeholder="স্বয়ংক্রিয়ভাবে তৈরি হবে">
+      </div>
 
-      <label for="admissionName">শিক্ষার্থীর নাম</label>
-      <input id="admissionName" name="name" type="text" required>
+      <div class="field">
+        <label for="admissionName">শিক্ষার্থীর নাম *</label>
+        <input id="admissionName" required>
+      </div>
 
-      <label for="admissionFather">পিতার নাম</label>
-      <input id="admissionFather" name="father" type="text">
+      <div class="field">
+        <label for="admissionFather">পিতার নাম</label>
+        <input id="admissionFather">
+      </div>
 
-      <label for="admissionMother">মাতার নাম</label>
-      <input id="admissionMother" name="mother" type="text">
+      <div class="field">
+        <label for="admissionMother">মাতার নাম</label>
+        <input id="admissionMother">
+      </div>
 
-      <label for="admissionDOB">জন্মতারিখ</label>
-      <input id="admissionDOB" name="dob" type="date">
+      <div class="field">
+        <label for="admissionDOB">জন্মতারিখ</label>
+        <input id="admissionDOB" type="date">
+      </div>
 
-      <label for="admissionMobile">মোবাইল নম্বর</label>
-      <input id="admissionMobile" name="mobile" type="tel">
+      <div class="field">
+        <label for="admissionBirthReg">জন্মনিবন্ধন নম্বর</label>
+        <input id="admissionBirthReg" type="text">
+      </div>
 
-      <label for="admissionAddress">ঠিকানা</label>
-      <textarea id="admissionAddress" name="address" rows="3"></textarea>
+      <div class="field">
+        <label for="admissionGender">লিঙ্গ</label>
+        <select id="admissionGender">
+          <option value="">নির্বাচন করুন</option>
+          <option value="ছাত্র">ছাত্র</option>
+          <option value="ছাত্রী">ছাত্রী</option>
+        </select>
+      </div>
 
-      <label for="admissionDate">ভর্তির তারিখ</label>
-      <input id="admissionDate" name="admissionDate" type="date">
+      <div class="field">
+        <label for="admissionReligion">ধর্ম</label>
+        <select id="admissionReligion">
+          <option value="">নির্বাচন করুন</option>
+          <option value="ইসলাম">ইসলাম</option>
+          <option value="হিন্দু">হিন্দু</option>
+          <option value="অন্যান্য">অন্যান্য</option>
+        </select>
+      </div>
 
-      <button type="submit">ভর্তি তথ্য সংরক্ষণ</button>
-      <button type="reset">ফরম পরিষ্কার করুন</button>
+      <div class="field">
+        <label for="admissionBlood">রক্তের গ্রুপ</label>
+        <select id="admissionBlood">
+          <option value="">নির্বাচন করুন</option>
+          <option value="A+">A+</option>
+          <option value="A-">A-</option>
+          <option value="B+">B+</option>
+          <option value="B-">B-</option>
+          <option value="AB+">AB+</option>
+          <option value="AB-">AB-</option>
+          <option value="O+">O+</option>
+          <option value="O-">O-</option>
+          <option value="জানা নেই">জানা নেই</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="admissionMobile">মোবাইল নম্বর</label>
+        <input id="admissionMobile" type="tel">
+      </div>
+
+      <div class="field">
+        <label for="admissionPreviousSchool">পূর্ববর্তী প্রতিষ্ঠান</label>
+        <input id="admissionPreviousSchool">
+      </div>
+
+      <div class="field">
+        <label for="admissionDate">ভর্তির তারিখ</label>
+        <input id="admissionDate" type="date">
+      </div>
+
+      <div class="field full">
+        <label for="admissionAddress">সম্পূর্ণ ঠিকানা</label>
+        <textarea id="admissionAddress" rows="3"></textarea>
+      </div>
+
+      <div class="field full">
+        <p id="admissionMessage"></p>
+      </div>
+
+      <div class="field">
+        <button type="submit">ভর্তি তথ্য সংরক্ষণ করুন</button>
+      </div>
+
+      <div class="field">
+        <button type="reset">ফরম পরিষ্কার করুন</button>
+      </div>
+
     </form>
   </section>
 
-  <section class="section">
-    <h2>ভর্তিকৃত শিক্ষার্থীদের তালিকা</h2>
-    <div id="admissionStudentList">
-      <p>তথ্য সংযোগ করার পর তালিকা এখানে দেখা যাবে।</p>
+  <section class="admission-card">
+    <h3>ভর্তিকৃত শিক্ষার্থীদের তালিকা</h3>
+
+    <p>মোট শিক্ষার্থী: <strong id="admissionStudentCount">০</strong></p>
+
+    <input
+      class="admission-search"
+      id="admissionSearch"
+      placeholder="নাম, আইডি বা রোল দিয়ে খুঁজুন"
+    >
+
+    <div class="admission-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>আইডি</th>
+            <th>রোল</th>
+            <th>নাম</th>
+            <th>পিতার নাম</th>
+            <th>শ্রেণি</th>
+            <th>শিক্ষাবর্ষ</th>
+            <th>মোবাইল</th>
+          </tr>
+        </thead>
+        <tbody id="admissionStudentList">
+          <tr><td colspan="7">কোনো তথ্য পাওয়া যায়নি।</td></tr>
+        </tbody>
+      </table>
     </div>
   </section>
+
 </main>
 
 <footer class="footer">
@@ -118,5 +368,6 @@
 </footer>
 
 <script src="script.js"></script>
+<script src="admission.js"></script>
 </body>
 </html>
