@@ -6,7 +6,196 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>শিক্ষক-কর্মচারী ব্যবস্থাপনা</title>
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* শুধু Employee পেজের ডিজাইন */
+    .employee-page {
+      width: 94%;
+      max-width: 1150px;
+      margin: 25px auto;
+      color: #222;
+    }
+
+    .employee-page h2,
+    .employee-page h3 {
+      color: #075e3a;
+    }
+
+    .employee-page .card {
+      background: #fff;
+      padding: 22px;
+      margin: 20px 0;
+      border-radius: 12px;
+      box-shadow: 0 3px 12px rgba(0,0,0,.09);
+    }
+
+    #employeeForm {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px 20px;
+    }
+
+    #employeeForm .emp-field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    #employeeForm label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    #employeeForm input,
+    #employeeForm select,
+    #employeeForm textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 11px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      background: #fff;
+      min-height: 43px;
+    }
+
+    #employeeForm textarea {
+      min-height: 85px;
+      resize: vertical;
+    }
+
+    #employeeForm input:focus,
+    #employeeForm select:focus,
+    #employeeForm textarea:focus,
+    #employeeSearch:focus {
+      outline: none;
+      border-color: #075e3a;
+      box-shadow: 0 0 0 2px rgba(7,94,58,.12);
+    }
+
+    #employeeForm .emp-full {
+      grid-column: 1 / -1;
+    }
+
+    #employeeForm button {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 6px;
+      background: #075e3a;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #employeeForm button:hover {
+      background: #06472d;
+    }
+
+    #employeeForm #employeeCancelButton {
+      background: #777;
+    }
+
+    #employeeMessage {
+      color: #075e3a;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+
+    #employeePhotoPreview {
+      width: 110px;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .employee-search {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      margin: 10px 0 15px;
+    }
+
+    .employee-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #employeeTableBody tr:nth-child(even) {
+      background: #f5f8f6;
+    }
+
+    #employeeTableBody td,
+    .employee-page table th {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .employee-page table {
+      width: 100%;
+      min-width: 900px;
+      border-collapse: collapse;
+    }
+
+    .employee-page table th {
+      background: #075e3a;
+      color: #fff;
+    }
+
+    #employeeTableBody button {
+      margin: 3px;
+      padding: 7px 10px;
+      border: none;
+      border-radius: 5px;
+      background: #075e3a;
+      color: white;
+      cursor: pointer;
+    }
+
+    .employee-page footer {
+      text-align: center;
+      padding: 15px;
+      margin-top: 25px;
+    }
+
+    @media (max-width: 650px) {
+      .employee-page {
+        width: 94%;
+        margin: 15px auto;
+      }
+
+      .employee-page .card {
+        padding: 14px;
+      }
+
+      #employeeForm {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      #employeeForm .emp-full {
+        grid-column: auto;
+      }
+
+      .employee-page h2 {
+        font-size: 20px;
+      }
+
+      .employee-page h3 {
+        font-size: 17px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
 <header>
@@ -14,66 +203,108 @@
   <p>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</p>
 </header>
 
-<main class="container">
+<main class="employee-page">
+
   <h2>শিক্ষক-কর্মচারী ব্যবস্থাপনা</h2>
 
   <section class="card">
     <h3 id="employeeFormTitle">নতুন শিক্ষক/কর্মচারী যোগ করুন</h3>
 
     <form id="employeeForm">
+
       <input type="hidden" id="employeeEditId">
 
-      <label>নাম *</label>
-      <input id="employeeName" required placeholder="পূর্ণ নাম">
+      <div class="emp-field">
+        <label for="employeeName">নাম *</label>
+        <input id="employeeName" required placeholder="পূর্ণ নাম">
+      </div>
 
-      <label>পদবি *</label>
-      <input id="employeeDesignation" required placeholder="যেমন: সহকারী শিক্ষক">
+      <div class="emp-field">
+        <label for="employeeDesignation">পদবি *</label>
+        <input id="employeeDesignation" required placeholder="যেমন: সহকারী শিক্ষক">
+      </div>
 
-      <label>ধরন</label>
-      <select id="employeeType">
-        <option value="শিক্ষক">শিক্ষক</option>
-        <option value="কর্মচারী">কর্মচারী</option>
-      </select>
+      <div class="emp-field">
+        <label for="employeeType">ধরন</label>
+        <select id="employeeType">
+          <option value="শিক্ষক">শিক্ষক</option>
+          <option value="কর্মচারী">কর্মচারী</option>
+        </select>
+      </div>
 
-      <label>মোবাইল নম্বর</label>
-      <input id="employeeMobile" type="tel">
+      <div class="emp-field">
+        <label for="employeeMobile">মোবাইল নম্বর</label>
+        <input id="employeeMobile" type="tel" placeholder="মোবাইল নম্বর">
+      </div>
 
-      <label>ইমেইল</label>
-      <input id="employeeEmail" type="email">
+      <div class="emp-field">
+        <label for="employeeEmail">ইমেইল</label>
+        <input id="employeeEmail" type="email" placeholder="ইমেইল ঠিকানা">
+      </div>
 
-      <label>ঠিকানা</label>
-      <textarea id="employeeAddress"></textarea>
+      <div class="emp-field">
+        <label for="employeeQualification">শিক্ষাগত যোগ্যতা</label>
+        <input id="employeeQualification" placeholder="যেমন: কামিল / ফাজিল / স্নাতক">
+      </div>
 
-      <label>শিক্ষাগত যোগ্যতা</label>
-      <input id="employeeQualification" placeholder="যেমন: কামিল / ফাজিল / স্নাতক">
+      <div class="emp-field">
+        <label for="employeeSalary">মাসিক বেতন (টাকা)</label>
+        <input id="employeeSalary" type="number" min="0" placeholder="মাসিক বেতন">
+      </div>
 
-      <label>মাসিক বেতন</label>
-      <input id="employeeSalary" type="number" min="0" placeholder="টাকা">
+      <div class="emp-field">
+        <label for="employeeJoinDate">যোগদানের তারিখ</label>
+        <input id="employeeJoinDate" type="date">
+      </div>
 
-      <label>যোগদানের তারিখ</label>
-      <input id="employeeJoinDate" type="date">
+      <div class="emp-field emp-full">
+        <label for="employeeAddress">ঠিকানা</label>
+        <textarea id="employeeAddress" placeholder="সম্পূর্ণ ঠিকানা"></textarea>
+      </div>
 
-      <label>চাকরির বিবরণ</label>
-      <textarea id="employeeJobDetails" placeholder="অতিরিক্ত তথ্য বা চাকরির বিবরণ"></textarea>
+      <div class="emp-field emp-full">
+        <label for="employeeJobDetails">চাকরির বিবরণ</label>
+        <textarea id="employeeJobDetails" placeholder="অতিরিক্ত তথ্য বা চাকরির বিবরণ"></textarea>
+      </div>
 
-      <label>ছবি</label>
-      <input id="employeePhoto" type="file" accept="image/*">
-      <img id="employeePhotoPreview" style="display:none;width:100px;height:100px;object-fit:cover;margin-top:10px;border-radius:8px;">
+      <div class="emp-field emp-full">
+        <label for="employeePhoto">ছবি নির্বাচন করুন</label>
+        <input id="employeePhoto" type="file" accept="image/*">
+        <img id="employeePhotoPreview" alt="ছবির প্রিভিউ" style="display:none;">
+      </div>
 
-      <p id="employeeMessage"></p>
+      <div class="emp-field emp-full">
+        <p id="employeeMessage"></p>
+      </div>
 
-      <button type="submit" id="employeeSaveButton">তথ্য সংরক্ষণ করুন</button>
-      <button type="button" id="employeeCancelButton" style="display:none;">সম্পাদনা বাতিল</button>
+      <div class="emp-field">
+        <button type="submit" id="employeeSaveButton">
+          তথ্য সংরক্ষণ করুন
+        </button>
+      </div>
+
+      <div class="emp-field">
+        <button type="button" id="employeeCancelButton" style="display:none;">
+          সম্পাদনা বাতিল
+        </button>
+      </div>
+
     </form>
   </section>
 
   <section class="card">
+
     <h3>শিক্ষক-কর্মচারীর তালিকা</h3>
+
     <p>মোট সদস্য: <strong id="employeeCount">০</strong></p>
 
-    <input id="employeeSearch" placeholder="নাম, পদবি বা মোবাইল দিয়ে খুঁজুন">
+    <input
+      class="employee-search"
+      id="employeeSearch"
+      placeholder="নাম, পদবি বা মোবাইল দিয়ে খুঁজুন"
+    >
 
-    <div style="overflow-x:auto;">
+    <div class="employee-table-wrap">
       <table>
         <thead>
           <tr>
@@ -88,10 +319,17 @@
             <th>কাজ</th>
           </tr>
         </thead>
-        <tbody id="employeeTableBody"></tbody>
+
+        <tbody id="employeeTableBody">
+          <tr>
+            <td colspan="9">তথ্য লোড হচ্ছে...</td>
+          </tr>
+        </tbody>
       </table>
     </div>
+
   </section>
+
 </main>
 
 <footer>
@@ -100,5 +338,6 @@
 
 <script src="script.js"></script>
 <script src="employee.js"></script>
+
 </body>
 </html>
