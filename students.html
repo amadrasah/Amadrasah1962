@@ -6,6 +6,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>শিক্ষার্থী ব্যবস্থাপনা | আব্দুল্লাহ হাট মাদ্রাসা</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .students-page .search-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 15px;
+      align-items: end;
+    }
+    .students-page label {
+      display: block;
+      margin: 10px 0 6px;
+      font-weight: 600;
+    }
+    .students-page input,
+    .students-page select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 11px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font: inherit;
+    }
+    .students-page .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 15px;
+    }
+    .students-page table {
+      width: 100%;
+      min-width: 750px;
+      border-collapse: collapse;
+    }
+    .students-page th,
+    .students-page td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    .students-page th {
+      background: #075e3a;
+      color: white;
+      white-space: nowrap;
+    }
+    .students-page .service-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 15px;
+    }
+    .students-page .service-card {
+      padding: 18px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .students-page .service-card h3 {
+      margin-top: 0;
+      color: #075e3a;
+    }
+    .students-page .muted {
+      color: #666;
+      font-size: 14px;
+    }
+    .students-page .count {
+      font-weight: bold;
+      color: #075e3a;
+      margin-top: 12px;
+    }
+    .students-page .empty {
+      padding: 18px;
+      text-align: center;
+      color: #777;
+    }
+    @media (max-width: 650px) {
+      .students-page .search-grid {
+        grid-template-columns: 1fr;
+      }
+      .students-page .service-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 420px) {
+      .students-page .service-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -34,7 +119,8 @@
   </div>
 </nav>
 
-<main class="container">
+<main class="container students-page">
+
   <section class="welcome">
     <h2>শিক্ষার্থী ব্যবস্থাপনা</h2>
     <p>শিক্ষার্থীদের তথ্য, প্রোফাইল ও প্রয়োজনীয় সেবা পরিচালনা করুন।</p>
@@ -42,47 +128,96 @@
 
   <section class="section">
     <h2>শিক্ষার্থী অনুসন্ধান</h2>
-    <label for="studentSearch">নাম, আইডি অথবা রোল দিয়ে খুঁজুন</label>
-    <input id="studentSearch" type="search" placeholder="অনুসন্ধান লিখুন">
-    <label for="studentClass">শ্রেণি নির্বাচন</label>
-    <select id="studentClass">
-      <option value="">সকল শ্রেণি</option>
-      <option>নূরানী ১ম জামাত</option>
-      <option>নূরানী ২য় জামাত</option>
-      <option>নূরানী ৩য় জামাত</option>
-      <option>ইবতেদায়ী ৪র্থ শ্রেণি</option>
-      <option>ইবতেদায়ী ৫ম শ্রেণি</option>
-      <option>দাখিল ৬ষ্ঠ শ্রেণি</option>
-      <option>দাখিল ৭ম শ্রেণি</option>
-      <option>দাখিল ৮ম শ্রেণি</option>
-      <option>দাখিল ৯ম শ্রেণি</option>
-      <option>দাখিল ১০ম শ্রেণি</option>
-      <option>আলিম ১ম বর্ষ</option>
-      <option>আলিম ২য় বর্ষ</option>
-      <option>ফাজিল ১ম বর্ষ</option>
-      <option>ফাজিল ২য় বর্ষ</option>
-      <option>ফাজিল ৩য় বর্ষ</option>
-    </select>
+
+    <div class="search-grid">
+      <div>
+        <label for="studentSearch">নাম, আইডি, রোল অথবা মোবাইল নম্বর</label>
+        <input id="studentSearch" type="search"
+               placeholder="শিক্ষার্থীর তথ্য লিখুন...">
+      </div>
+
+      <div>
+        <label for="studentClass">শ্রেণি নির্বাচন</label>
+        <select id="studentClass">
+          <option value="">সকল শ্রেণি</option>
+          <option value="নূরানী ১ম জামাত">নূরানী ১ম জামাত</option>
+          <option value="নূরানী ২য় জামাত">নূরানী ২য় জামাত</option>
+          <option value="নূরানী ৩য় জামাত">নূরানী ৩য় জামাত</option>
+          <option value="ইবতেদায়ী ৪র্থ শ্রেণি">ইবতেদায়ী ৪র্থ শ্রেণি</option>
+          <option value="ইবতেদায়ী ৫ম শ্রেণি">ইবতেদায়ী ৫ম শ্রেণি</option>
+          <option value="দাখিল ৬ষ্ঠ শ্রেণি">দাখিল ৬ষ্ঠ শ্রেণি</option>
+          <option value="দাখিল ৭ম শ্রেণি">দাখিল ৭ম শ্রেণি</option>
+          <option value="দাখিল ৮ম শ্রেণি">দাখিল ৮ম শ্রেণি</option>
+          <option value="দাখিল ৯ম শ্রেণি">দাখিল ৯ম শ্রেণি</option>
+          <option value="দাখিল ১০ম শ্রেণি">দাখিল ১০ম শ্রেণি</option>
+          <option value="আলিম ১ম বর্ষ">আলিম ১ম বর্ষ</option>
+          <option value="আলিম ২য় বর্ষ">আলিম ২য় বর্ষ</option>
+          <option value="ফাজিল ১ম বর্ষ">ফাজিল ১ম বর্ষ</option>
+          <option value="ফাজিল ২য় বর্ষ">ফাজিল ২য় বর্ষ</option>
+          <option value="ফাজিল ৩য় বর্ষ">ফাজিল ৩য় বর্ষ</option>
+        </select>
+      </div>
+    </div>
+
+    <p id="studentCount" class="count">মোট শিক্ষার্থী: ০ জন</p>
   </section>
 
   <section class="section">
     <h2>শিক্ষার্থী তালিকা</h2>
-    <div id="studentList">
-      <p>তথ্য সংযোগ করার পর শিক্ষার্থীদের তালিকা এখানে দেখা যাবে।</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ক্রমিক</th>
+            <th>শিক্ষার্থী আইডি</th>
+            <th>রোল</th>
+            <th>নাম</th>
+            <th>শ্রেণি</th>
+            <th>শিক্ষাবর্ষ</th>
+            <th>পিতার নাম</th>
+            <th>মোবাইল</th>
+          </tr>
+        </thead>
+        <tbody id="studentList">
+          <tr>
+            <td colspan="8" class="empty">শিক্ষার্থীর তথ্য লোড হচ্ছে...</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
   <section class="section">
     <h2>শিক্ষার্থী সেবা</h2>
-    <div class="card-grid">
-      <div class="info-card">আইডি কার্ড</div>
-      <div class="info-card">সনদপত্র</div>
-      <div class="info-card">ছাড়পত্র (TC)</div>
-      <div class="info-card">অভিভাবকের যোগাযোগ</div>
-      <div class="info-card">বকেয়া তথ্য</div>
-      <div class="info-card">নোটিফিকেশন</div>
+    <div class="service-grid">
+      <div class="service-card">
+        <h3>আইডি কার্ড</h3>
+        <p class="muted">শিক্ষার্থীর পরিচয়পত্র তৈরি ও প্রিন্ট।</p>
+      </div>
+      <div class="service-card">
+        <h3>সনদপত্র</h3>
+        <p class="muted">শিক্ষার্থীর সনদপত্র প্রস্তুত।</p>
+      </div>
+      <div class="service-card">
+        <h3>ছাড়পত্র (TC)</h3>
+        <p class="muted">ছাড়পত্র তৈরি ও প্রিন্ট।</p>
+      </div>
+      <div class="service-card">
+        <h3>অভিভাবকের যোগাযোগ</h3>
+        <p class="muted">অভিভাবকের সঙ্গে যোগাযোগের ব্যবস্থা।</p>
+      </div>
+      <div class="service-card">
+        <h3>বকেয়া তথ্য</h3>
+        <p class="muted">শিক্ষার্থীর বকেয়া হিসাব দেখা।</p>
+      </div>
+      <div class="service-card">
+        <h3>নোটিফিকেশন</h3>
+        <p class="muted">শিক্ষার্থী ও অভিভাবকের জন্য বিজ্ঞপ্তি।</p>
+      </div>
     </div>
+    <p class="muted">এই সেবাগুলোর কার্যকর ব্যবস্থা পরবর্তী ধাপে সংযুক্ত করা হবে।</p>
   </section>
+
 </main>
 
 <footer class="footer">
@@ -90,5 +225,6 @@
 </footer>
 
 <script src="script.js"></script>
+<script src="students.js"></script>
 </body>
 </html>
