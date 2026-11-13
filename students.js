@@ -144,10 +144,28 @@
       "";
   }
 
+  // বাংলা শ্রেণির নাম এবং class code একইভাবে শনাক্ত করবে।
+  function normalizeClassCode(value) {
+    const raw = String(value || "").trim().toLowerCase();
+
+    if (!raw) return "";
+
+    if (CLASS_NAMES[raw]) return raw;
+
+    const matched = Object.entries(CLASS_NAMES).find(
+      ([code, name]) =>
+        name.trim().toLowerCase() === raw
+    );
+
+    return matched ? matched[0] : raw;
+  }
+
   function getClassName(student) {
+    const code = normalizeClassCode(getClassCode(student));
+
     return student.className ||
       student.class_name ||
-      CLASS_NAMES[getClassCode(student)] ||
+      CLASS_NAMES[code] ||
       getClassCode(student) ||
       "উল্লেখ নেই";
   }
@@ -187,12 +205,15 @@
       Math.random().toString(36).slice(2, 7).toUpperCase();
   }
 
-  function getSelectedStudent() {
+  // showAlert=false দিলে নির্বাচন না থাকলেও Alert দেখাবে না।
+  function getSelectedStudent(showAlert = true) {
     if (
       selectedStudentIndex < 0 ||
       selectedStudentIndex >= studentRecords.length
     ) {
-      alert("প্রথমে তালিকা থেকে একজন শিক্ষার্থী নির্বাচন করুন।");
+      if (showAlert) {
+        alert("প্রথমে তালিকা থেকে একজন শিক্ষার্থী নির্বাচন করুন।");
+      }
       return null;
     }
 
@@ -216,19 +237,18 @@
 
     select.innerHTML = '<option value="">সকল শ্রেণি</option>';
 
-    const classSource =
-      typeof CLASS_LIST !== "undefined" && CLASS_LIST
-        ? CLASS_LIST
-        : CLASS_NAMES;
-
-    Object.keys(classSource).forEach(code => {
+    // CLASS_NAMES-কে মূল তালিকা হিসেবে ব্যবহার করা হচ্ছে।
+    // এতে CLASS_LIST array/object যাই হোক, dropdown ভাঙবে না।
+    Object.entries(CLASS_NAMES).forEach(([code, name]) => {
       const option = document.createElement("option");
       option.value = code;
-      option.textContent = classSource[code];
+      option.textContent = name;
       select.appendChild(option);
     });
 
-    if (oldValue) select.value = oldValue;
+    if (oldValue) {
+      select.value = normalizeClassCode(oldValue);
+    }
   }
 
   /* -----------------------------
@@ -247,8 +267,9 @@
       document.getElementById("studentSearch")?.value || ""
     ).toLowerCase().trim();
 
-    const classFilter =
-      document.getElementById("studentClass")?.value || "";
+    const classFilter = normalizeClassCode(
+      document.getElementById("studentClass")?.value || ""
+    );
 
     const statusFilter =
       document.getElementById("studentStatusFilter")?.value || "all";
@@ -263,12 +284,18 @@
       const roll = student.roll || "";
       const father = getFather(student);
       const mobile = getMobile(student);
-      const classCode = getClassCode(student);
+      const classCode = normalizeClassCode(getClassCode(student));
       const className = getClassName(student);
       const status = getStatus(student);
 
       const searchText = [
-        name, id, roll, father, mobile, className,
+        name,
+        id,
+        roll,
+        father,
+        mobile,
+        className,
+        getClassCode(student),
         student.year || ""
       ].join(" ").toLowerCase();
 
@@ -293,16 +320,21 @@
           ${getStatusText(student)}
         </td>
         <td>
-          <button type="button" onclick="selectStudent(${index})">
+          <button type="button" class="student-select-button">
             নির্বাচন
           </button>
         </td>
       `;
 
+      row.querySelector(".student-select-button")
+        .addEventListener("click", () => selectStudent(index));
+
       tbody.appendChild(row);
     });
 
-    if (count) count.textContent = visibleCount;
+    if (count) {
+      count.textContent = visibleCount;
+    }
 
     if (!visibleCount) {
       tbody.innerHTML = `
@@ -322,12 +354,16 @@
   function selectStudent(index) {
     loadAllData();
 
-    if (!studentRecords[index]) return;
+    if (!studentRecords[index]) {
+      alert("শিক্ষার্থীর তথ্য পাওয়া যায়নি। তালিকা রিফ্রেশ করে আবার চেষ্টা করুন।");
+      return;
+    }
 
     selectedStudentIndex = index;
-    const student = studentRecords[index];
 
+    const student = studentRecords[index];
     const output = document.getElementById("studentProfileOutput");
+
     if (!output) return;
 
     const fields = [
@@ -407,6 +443,34 @@
     };
   }
 
+  // ID না থাকলেও নাম + রোল + শিক্ষাবর্ষ দিয়ে একই শিক্ষার্থী শনাক্ত করবে।
+  function isDocumentForStudent(record, student) {
+    if (!record || !student) return false;
+
+    const studentId = String(getStudentId(student) || "").trim();
+    const recordId = String(record.studentId || "").trim();
+
+    if (studentId && recordId) {
+      return studentId === recordId;
+    }
+
+    const snapshot = record.snapshot || {};
+
+    const sameName =
+      String(record.studentName || snapshot.name || "").trim() ===
+      String(getName(student) || "").trim();
+
+    const sameRoll =
+      String(snapshot.roll || "").trim() ===
+      String(student.roll || "").trim();
+
+    const sameYear =
+      String(snapshot.year || "").trim() ===
+      String(student.year || "").trim();
+
+    return sameName && sameRoll && sameYear;
+  }
+
   /* -----------------------------
      CERTIFICATE
   ----------------------------- */
@@ -421,6 +485,7 @@
       "সনদ প্রদানের তারিখ লিখুন:",
       getToday()
     );
+
     if (issueDate === null) return;
 
     const serial = prompt("সনদ নম্বর লিখুন:", "");
@@ -471,6 +536,7 @@
       "ছাড়পত্র প্রদানের তারিখ লিখুন:",
       getToday()
     );
+
     if (issueDate === null) return;
 
     const serial = prompt("ছাড়পত্র নম্বর লিখুন:", "");
@@ -480,12 +546,14 @@
       "ছাড়পত্র নেওয়ার কারণ লিখুন:",
       "অভিভাবকের আবেদনের পরিপ্রেক্ষিতে"
     );
+
     if (reason === null) return;
 
     const conduct = prompt(
       "আচরণ ও চরিত্র সম্পর্কে মন্তব্য লিখুন:",
       "সন্তোষজনক"
     );
+
     if (conduct === null) return;
 
     const extra = {
@@ -508,24 +576,57 @@
       return;
     }
 
-    // শিক্ষার্থীর মূল রেকর্ড মুছে ফেলা হবে না।
-    // শুধু অবস্থা পরিবর্তন করে রাখা হবে।
+    // মূল শিক্ষার্থী রেকর্ড মুছে ফেলা হচ্ছে না।
     student.studentStatus = "স্থানান্তরিত";
     student.transferredAt = issueDate.trim();
     student.tcNumber = serial.trim();
 
     if (!saveStudents()) {
-      alert("ছাড়পত্রের রেকর্ড সংরক্ষিত হয়েছে, কিন্তু শিক্ষার্থীর অবস্থা পরিবর্তন করা যায়নি।");
+      alert(
+        "ছাড়পত্রের রেকর্ড সংরক্ষিত হয়েছে, " +
+        "কিন্তু শিক্ষার্থীর অবস্থা পরিবর্তন করা যায়নি।"
+      );
+      renderDocumentHistory();
       return;
     }
 
     renderStudentList();
     renderDocumentHistory();
-    selectStudent(selectedStudentIndex);
+
+    // renderStudentList() নতুন করে ডেটা লোড করে।
+    // তাই নির্বাচিত শিক্ষার্থীকে আবার শনাক্ত করা হচ্ছে।
+    const updatedIndex = studentRecords.findIndex(item =>
+      isSameStudent(item, record)
+    );
+
+    if (updatedIndex >= 0) {
+      selectStudent(updatedIndex);
+    }
 
     printDocumentRecord(record);
 
-    setMessage("ছাড়পত্র ইস্যু হয়েছে। শিক্ষার্থী স্থানান্তরিত হিসেবে চিহ্নিত হয়েছে।");
+    setMessage(
+      "ছাড়পত্র ইস্যু হয়েছে। শিক্ষার্থী স্থানান্তরিত হিসেবে চিহ্নিত হয়েছে।"
+    );
+  }
+
+  function isSameStudent(student, record) {
+    const id = String(record.studentId || "").trim();
+
+    if (id) {
+      return String(getStudentId(student) || "").trim() === id;
+    }
+
+    const snapshot = record.snapshot || {};
+
+    return (
+      String(getName(student)).trim() ===
+        String(snapshot.name || "").trim() &&
+      String(student.roll || "").trim() ===
+        String(snapshot.roll || "").trim() &&
+      String(student.year || "").trim() ===
+        String(snapshot.year || "").trim()
+    );
   }
 
   /* -----------------------------
@@ -633,13 +734,17 @@
     const printWindow = window.open("", "_blank");
 
     if (!printWindow) {
-      alert("প্রিন্ট পেজ খোলা যাচ্ছে না। ব্রাউজারে পপ-আপ অনুমতি চালু করুন।");
+      alert(
+        "প্রিন্ট পেজ খোলা যাচ্ছে না। " +
+        "ব্রাউজারে পপ-আপ অনুমতি চালু করুন।"
+      );
       return;
     }
 
     const title = record.type === "tc" ? "ছাড়পত্র" : "সনদপত্র";
 
     printWindow.document.open();
+
     printWindow.document.write(`
       <!DOCTYPE html>
       <html lang="bn">
@@ -809,25 +914,33 @@
 
     loadAllData();
 
-    const selected = getSelectedStudent();
-    const selectedId = selected ? getStudentId(selected) : "";
+    // কোনো শিক্ষার্থী নির্বাচন না থাকলে ইতিহাস দেখানো হবে না।
+    // এখানে Alert দেখানো হবে না।
+    const selected = getSelectedStudent(false);
 
-    let records = documentRecords;
-
-    if (selectedId) {
-      records = records.filter(record =>
-        String(record.studentId) === String(selectedId)
-      );
-    }
-
-    if (!records.length) {
+    if (!selected) {
       container.innerHTML = `
-        <p class="empty">এই শিক্ষার্থীর কোনো সনদ বা ছাড়পত্রের রেকর্ড নেই।</p>
+        <p class="empty">
+          সনদ বা ছাড়পত্রের ইতিহাস দেখতে তালিকা থেকে একজন শিক্ষার্থী নির্বাচন করুন।
+        </p>
       `;
       return;
     }
 
-    container.innerHTML = records.map(record => `
+    const records = documentRecords.filter(record =>
+      isDocumentForStudent(record, selected)
+    );
+
+    if (!records.length) {
+      container.innerHTML = `
+        <p class="empty">
+          এই শিক্ষার্থীর কোনো সনদ বা ছাড়পত্রের রেকর্ড নেই।
+        </p>
+      `;
+      return;
+    }
+
+    container.innerHTML = records.map((record, index) => `
       <div class="history-item">
         <div>
           <strong>${escapeHTML(record.typeName || "ডকুমেন্ট")}</strong><br>
@@ -836,19 +949,32 @@
           <span>তারিখ: ${escapeHTML(record.issueDate || "")}</span>
         </div>
 
-        <button type="button"
-          onclick="reprintStudentDocument('${escapeHTML(record.documentId)}')">
+        <button
+          type="button"
+          class="reprint-document-button"
+          data-document-index="${index}">
           পুনরায় প্রিন্ট
         </button>
       </div>
     `).join("");
+
+    // Inline onclick ব্যবহার না করে নিরাপদ event listener।
+    container.querySelectorAll(".reprint-document-button")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          const index = Number(button.dataset.documentIndex);
+          const record = records[index];
+
+          if (record) printDocumentRecord(record);
+        });
+      });
   }
 
   function reprintStudentDocument(documentId) {
     loadAllData();
 
     const record = documentRecords.find(item =>
-      item.documentId === documentId
+      String(item.documentId) === String(documentId)
     );
 
     if (!record) {
@@ -864,6 +990,8 @@
   ----------------------------- */
 
   function printSelectedIDCard() {
+    loadAllData();
+
     const student = getSelectedStudent();
     if (!student) return;
 
@@ -890,10 +1018,13 @@
     `;
 
     const printWindow = window.open("", "_blank");
+
     if (!printWindow) {
       alert("প্রিন্ট পেজ খোলা যাচ্ছে না। পপ-আপ অনুমতি চালু করুন।");
       return;
     }
+
+    printWindow.document.open();
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -909,11 +1040,14 @@
       <body>
         ${html}
         <script>
-          window.onload=function(){setTimeout(function(){window.print()},400)};
+          window.onload=function(){
+            setTimeout(function(){window.print()},400);
+          };
         <\/script>
       </body>
       </html>
     `);
+
     printWindow.document.close();
   }
 
@@ -922,6 +1056,8 @@
   ----------------------------- */
 
   function contactSelectedGuardian() {
+    loadAllData();
+
     const student = getSelectedStudent();
     if (!student) return;
 
@@ -932,7 +1068,8 @@
       return;
     }
 
-    window.location.href = "tel:" + String(mobile).replace(/[^\d+]/g, "");
+    window.location.href =
+      "tel:" + String(mobile).replace(/[^\d+]/g, "");
   }
 
   /* -----------------------------
@@ -942,8 +1079,12 @@
   function serviceMessage(serviceName) {
     const value = String(serviceName || "").toLowerCase();
 
-    if (value.includes("সনদ") || value.includes("certificate")) {
+    if (
+      value.includes("সনদ") ||
+      value.includes("certificate")
+    ) {
       printStudentCertificate();
+
     } else if (
       value.includes("টি") ||
       value.includes("tc") ||
@@ -951,8 +1092,10 @@
       value.includes("ছাড়")
     ) {
       printStudentTC();
+
     } else if (value.includes("আইডি")) {
       printSelectedIDCard();
+
     } else {
       alert("এই সেবাটি এই সংস্করণে যুক্ত করা হয়নি।");
     }
@@ -966,6 +1109,8 @@
     loadAllData();
     populateClassFilter();
     renderStudentList();
+
+    // প্রথমবার পেজ খোলার সময় Alert ছাড়াই খালি বার্তা দেখাবে।
     renderDocumentHistory();
 
     document.getElementById("studentSearch")
@@ -978,18 +1123,46 @@
       ?.addEventListener("change", renderStudentList);
   }
 
+  /* -----------------------------
+     CROSS-TAB STORAGE UPDATE
+  ----------------------------- */
+
   window.addEventListener("storage", event => {
     if (
       event.key === STUDENT_STORAGE_KEY ||
       event.key === DOCUMENT_STORAGE_KEY
     ) {
       loadAllData();
+
+      // আগের নির্বাচিত শিক্ষার্থীকে ID দিয়ে খুঁজে রাখা।
+      const previousStudentId = selectedStudentIndex >= 0
+        ? getStudentId(studentRecords[selectedStudentIndex] || {})
+        : "";
+
       renderStudentList();
-      renderDocumentHistory();
+
+      if (previousStudentId) {
+        const newIndex = studentRecords.findIndex(student =>
+          String(getStudentId(student)) === String(previousStudentId)
+        );
+
+        if (newIndex >= 0) {
+          selectStudent(newIndex);
+        } else {
+          selectedStudentIndex = -1;
+          renderDocumentHistory();
+        }
+      } else {
+        selectedStudentIndex = -1;
+        renderDocumentHistory();
+      }
     }
   });
 
-  // HTML-এর বাটন থেকে ব্যবহারের জন্য
+  /* -----------------------------
+     HTML BUTTON FUNCTIONS
+  ----------------------------- */
+
   window.selectStudent = selectStudent;
   window.showSelectedProfile = showSelectedProfile;
   window.printSelectedIDCard = printSelectedIDCard;
@@ -1000,6 +1173,10 @@
   window.reprintStudentDocument = reprintStudentDocument;
   window.refreshStudentList = renderStudentList;
   window.showStudentList = renderStudentList;
+
+  /* -----------------------------
+     START MODULE
+  ----------------------------- */
 
   if (document.readyState === "loading") {
     document.addEventListener(
