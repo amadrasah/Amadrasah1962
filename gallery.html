@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>মাদ্রাসা ফটো গ্যালারি</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+  <h2>আব্দুল্লাহ হাট ইসলামিয়া ফাজিল (ডিগ্রী) মাদ্রাসা</h2>
+  <p>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</p>
+</header>
+
+<nav class="nav">
+  <a href="index.html">হোম</a>
+  <a href="dashboard.html">ড্যাশবোর্ড</a>
+  <a href="students.html">শিক্ষার্থী</a>
+  <a href="calendar.html">ক্যালেন্ডার</a>
+  <a href="gallery.html">গ্যালারি</a>
+</nav>
+
+<main class="container">
+
+  <h2>মাদ্রাসা ফটো গ্যালারি</h2>
+
+  <section class="card">
+    <h3>নতুন ছবি যুক্ত করুন</h3>
+
+    <label>ছবির শিরোনাম</label>
+    <input type="text" id="photoTitle" placeholder="ছবির নাম লিখুন">
+
+    <label>ছবির বিভাগ</label>
+    <select id="photoCategory">
+      <option value="মাদ্রাসা">মাদ্রাসা</option>
+      <option value="শিক্ষক-কর্মচারী">শিক্ষক-কর্মচারী</option>
+      <option value="শিক্ষার্থী">শিক্ষার্থী</option>
+      <option value="অনুষ্ঠান">অনুষ্ঠান</option>
+      <option value="পুরস্কার">পুরস্কার</option>
+      <option value="অন্যান্য">অন্যান্য</option>
+    </select>
+
+    <label>ছবি নির্বাচন করুন</label>
+    <input type="file" id="photoFile" accept="image/*">
+
+    <label>ছবির বিবরণ</label>
+    <textarea id="photoDescription" placeholder="ছবির বিবরণ লিখুন"></textarea>
+
+    <button type="button" id="savePhoto">ছবি যুক্ত করুন</button>
+  </section>
+
+  <section class="card">
+    <h3>ছবি খুঁজুন</h3>
+
+    <select id="galleryFilter">
+      <option value="all">সকল ছবি</option>
+      <option value="মাদ্রাসা">মাদ্রাসা</option>
+      <option value="শিক্ষক-কর্মচারী">শিক্ষক-কর্মচারী</option>
+      <option value="শিক্ষার্থী">শিক্ষার্থী</option>
+      <option value="অনুষ্ঠান">অনুষ্ঠান</option>
+      <option value="পুরস্কার">পুরস্কার</option>
+      <option value="অন্যান্য">অন্যান্য</option>
+    </select>
+
+    <div id="galleryList">
+      ছবিগুলো এখানে দেখা যাবে।
+    </div>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
