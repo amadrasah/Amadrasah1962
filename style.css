@@ -143,3 +143,114 @@ body {
     padding: 16px;
   }
 }
+
+/* ===== Desktop, Tablet & Mobile Optimization ===== */
+
+/* বড় কম্পিউটার */
+@media (min-width: 1200px) {
+  main,
+  .container {
+    max-width: 1150px;
+    margin: 30px auto;
+  }
+
+  .dashboard-grid,
+  .module-grid,
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .card {
+    padding: 24px;
+  }
+}
+
+/* ল্যাপটপ ও ছোট কম্পিউটার */
+@media (min-width: 769px) and (max-width: 1199px) {
+  main,
+  .container {
+    width: 94%;
+    max-width: 1050px;
+  }
+
+  .dashboard-grid,
+  .module-grid,
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ট্যাবলেট */
+@media (min-width: 601px) and (max-width: 768px) {
+  main,
+  .container {
+    width: 94%;
+  }
+
+  .dashboard-grid,
+  .module-grid,
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  nav {
+    justify-content: center;
+  }
+}
+
+/* মোবাইল */
+@media (max-width: 600px) {
+  body {
+    font-size: 14px;
+  }
+
+  main,
+  .container {
+    width: 94%;
+    margin: 12px auto;
+  }
+
+  .dashboard-grid,
+  .module-grid,
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  nav {
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  nav a {
+    flex-shrink: 0;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  button,
+  .btn {
+    min-height: 42px;
+  }
+}
+
+/* সব ডিভাইসে ছবি ও কনটেন্ট ঠিক রাখা */
+img,
+video,
+iframe {
+  max-width: 100%;
+}
+
+* {
+  overflow-wrap: break-word;
+}
