@@ -4,9 +4,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>নম্বর প্রদান | আব্দুল্লাহ হাট মাদ্রাসা</title>
+
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    .marks-section {
+      background: #fff;
+      padding: 18px;
+      margin: 20px 0;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+
+    .marks-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+
+    .marks-form label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .marks-form select,
+    .marks-section input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    .marks-button {
+      background: #075e3a;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    .marks-button:hover {
+      background: #06482e;
+    }
+
+    .marks-info {
+      background: #f1f8f4;
+      padding: 12px;
+      border-left: 4px solid #075e3a;
+      margin: 12px 0;
+      border-radius: 5px;
+    }
+
+    #marksMessage {
+      margin-top: 12px;
+      font-weight: bold;
+      color: #075e3a;
+    }
+
+    #marksStudentList {
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    #marksStudentList table {
+      width: 100%;
+      min-width: 650px;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    #marksStudentList th,
+    #marksStudentList td {
+      border: 1px solid #ddd;
+      padding: 9px;
+      text-align: center;
+    }
+
+    #marksStudentList th {
+      background: #075e3a;
+      color: white;
+    }
+
+    #marksStudentList input {
+      min-width: 65px;
+      padding: 7px;
+      text-align: center;
+    }
+
+    @media(max-width:600px) {
+      .marks-section {
+        padding: 12px;
+      }
+
+      .marks-button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
 <header class="header">
@@ -35,85 +138,124 @@
 </nav>
 
 <main class="container">
+
   <section class="welcome">
     <h2>পরীক্ষার নম্বর প্রদান</h2>
-    <p>শিক্ষার্থীদের পরীক্ষার নম্বর এন্ট্রি ও সংরক্ষণ।</p>
+    <p>শিক্ষার্থীদের পরীক্ষার নম্বর এন্ট্রি, সম্পাদনা ও সংরক্ষণ।</p>
   </section>
 
-  <section class="section">
-    <h2>পরীক্ষা নির্বাচন</h2>
+  <!-- পরীক্ষা নির্বাচন -->
 
-    <label for="marksYear">শিক্ষাবর্ষ</label>
-    <select id="marksYear">
-      <option value="">শিক্ষাবর্ষ নির্বাচন করুন</option>
-      <option>2026</option>
-      <option>2027</option>
-      <option>2028</option>
-    </select>
+  <section class="marks-section">
+    <h2>১. পরীক্ষা নির্বাচন</h2>
 
-    <label for="marksExam">পরীক্ষা</label>
-    <select id="marksExam">
-      <option value="">পরীক্ষা নির্বাচন করুন</option>
-      <option>অর্ধবার্ষিক পরীক্ষা</option>
-      <option>প্রাক-নির্বাচনী পরীক্ষা</option>
-      <option>নির্বাচনী পরীক্ষা</option>
-      <option>১ম টিউটোরিয়াল</option>
-      <option>২য় টিউটোরিয়াল</option>
-      <option>৩য় টিউটোরিয়াল</option>
-      <option>বার্ষিক পরীক্ষা</option>
-    </select>
+    <div class="marks-form">
 
-    <label for="marksClass">শ্রেণি</label>
-    <select id="marksClass">
-      <option value="">শ্রেণি নির্বাচন করুন</option>
-      <option value="nurani1">নূরানী ১ম জামাত</option>
-      <option value="nurani2">নূরানী ২য় জামাত</option>
-      <option value="nurani3">নূরানী ৩য় জামাত</option>
-      <option value="ebtedayi4">ইবতেদায়ী ৪র্থ শ্রেণি</option>
-      <option value="ebtedayi5">ইবতেদায়ী ৫ম শ্রেণি</option>
-      <option value="dakhil6">দাখিল ৬ষ্ঠ শ্রেণি</option>
-      <option value="dakhil7">দাখিল ৭ম শ্রেণি</option>
-      <option value="dakhil8">দাখিল ৮ম শ্রেণি</option>
-      <option value="dakhil9">দাখিল ৯ম শ্রেণি</option>
-      <option value="dakhil10">দাখিল ১০ম শ্রেণি</option>
-      <option value="alim1">আলিম ১ম বর্ষ</option>
-      <option value="alim2">আলিম ২য় বর্ষ</option>
-      <option value="fazil1">ফাজিল ১ম বর্ষ</option>
-      <option value="fazil2">ফাজিল ২য় বর্ষ</option>
-      <option value="fazil3">ফাজিল ৩য় বর্ষ</option>
-    </select>
+      <div>
+        <label for="marksYear">শিক্ষাবর্ষ</label>
+        <select id="marksYear" data-year-dropdown>
+          <option value="">শিক্ষাবর্ষ নির্বাচন করুন</option>
+        </select>
+      </div>
 
-    <label for="marksSubject">বিষয়</label>
-    <select id="marksSubject">
-      <option value="">বিষয় নির্বাচন করুন</option>
-      <option>কুরআন মাজিদ</option>
-      <option>হাদীস শরিফ</option>
-      <option>আকাইদ ও ফিকহ</option>
-      <option>আরবী ১ম পত্র</option>
-      <option>আরবী ২য় পত্র</option>
-      <option>বাংলা ১ম পত্র</option>
-      <option>বাংলা ২য় পত্র</option>
-      <option>ইংরেজি ১ম পত্র</option>
-      <option>ইংরেজি ২য় পত্র</option>
-      <option>গণিত</option>
-      <option>ইসলামের ইতিহাস</option>
-      <option>তথ্য ও যোগাযোগ প্রযুক্তি</option>
-      <option>কৃষি শিক্ষা</option>
-    </select>
+      <div>
+        <label for="marksExam">পরীক্ষা</label>
+        <select id="marksExam">
+          <option value="">পরীক্ষা নির্বাচন করুন</option>
+          <option>অর্ধবার্ষিক পরীক্ষা</option>
+          <option>প্রাক-নির্বাচনী পরীক্ষা</option>
+          <option>নির্বাচনী পরীক্ষা</option>
+          <option>১ম টিউটোরিয়াল</option>
+          <option>২য় টিউটোরিয়াল</option>
+          <option>৩য় টিউটোরিয়াল</option>
+          <option>বার্ষিক পরীক্ষা</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="marksClass">শ্রেণি</label>
+        <select id="marksClass">
+          <option value="">শ্রেণি নির্বাচন করুন</option>
+          <option value="nurani1">নূরানী ১ম জামাত</option>
+          <option value="nurani2">নূরানী ২য় জামাত</option>
+          <option value="nurani3">নূরানী ৩য় জামাত</option>
+          <option value="ebtedayi4">ইবতেদায়ী ৪র্থ শ্রেণি</option>
+          <option value="ebtedayi5">ইবতেদায়ী ৫ম শ্রেণি</option>
+          <option value="dakhil6">দাখিল ৬ষ্ঠ শ্রেণি</option>
+          <option value="dakhil7">দাখিল ৭ম শ্রেণি</option>
+          <option value="dakhil8">দাখিল ৮ম শ্রেণি</option>
+          <option value="dakhil9">দাখিল ৯ম শ্রেণি</option>
+          <option value="dakhil10">দাখিল ১০ম শ্রেণি</option>
+          <option value="alim1">আলিম ১ম বর্ষ</option>
+          <option value="alim2">আলিম ২য় বর্ষ</option>
+          <option value="fazil1">ফাজিল ১ম বর্ষ</option>
+          <option value="fazil2">ফাজিল ২য় বর্ষ</option>
+          <option value="fazil3">ফাজিল ৩য় বর্ষ</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="marksSubject">বিষয়</label>
+        <select id="marksSubject">
+          <option value="">বিষয় নির্বাচন করুন</option>
+          <option>কুরআন মাজিদ</option>
+          <option>হাদীস শরিফ</option>
+          <option>আকাইদ ও ফিকহ</option>
+          <option>আরবী ১ম পত্র</option>
+          <option>আরবী ২য় পত্র</option>
+          <option>বাংলা ১ম পত্র</option>
+          <option>বাংলা ২য় পত্র</option>
+          <option>ইংরেজি ১ম পত্র</option>
+          <option>ইংরেজি ২য় পত্র</option>
+          <option>গণিত</option>
+          <option>ইসলামের ইতিহাস</option>
+          <option>তথ্য ও যোগাযোগ প্রযুক্তি</option>
+          <option>কৃষি শিক্ষা</option>
+        </select>
+      </div>
+
+    </div>
+
+    <button
+      type="button"
+      class="marks-button"
+      onclick="loadMarksStudents()">
+      শিক্ষার্থী তালিকা আনুন
+    </button>
+
+    <p id="marksMessage"></p>
   </section>
 
-  <section class="section">
-    <h2>নম্বর এন্ট্রি</h2>
-    <p>প্রথমে পরীক্ষা ও শ্রেণি নির্বাচন করে শিক্ষার্থীদের তালিকা আনতে হবে।</p>
+  <!-- নম্বর এন্ট্রি -->
+
+  <section class="marks-section">
+    <h2>২. শিক্ষার্থীদের নম্বর এন্ট্রি</h2>
+
+    <div class="marks-info">
+      <p>
+        নির্বাচিত পরীক্ষা ও শ্রেণির শিক্ষার্থীদের তালিকা এখানে আসবে।
+        নম্বর লিখে সংরক্ষণ করুন।
+      </p>
+    </div>
+
     <div id="marksStudentList">
-      <p>শিক্ষার্থীদের নম্বর এন্ট্রির টেবিল এখানে দেখানো হবে।</p>
+      <p>প্রথমে পরীক্ষা, শ্রেণি ও বিষয় নির্বাচন করুন।</p>
     </div>
   </section>
 
-  <section class="section">
-    <h2>নম্বর প্রদানের নিয়ম</h2>
-    <p>MCQ, CQ ও ব্যবহারিক নম্বর আলাদা থাকবে। প্রতিটি অংশে পৃথক পাসের শর্ত প্রযোজ্য হবে। বিষয়ভেদে পূর্ণমান কাস্টমাইজ করা যাবে।</p>
+  <!-- নম্বর প্রদানের নিয়ম -->
+
+  <section class="marks-section">
+    <h2>৩. নম্বর প্রদানের নিয়ম</h2>
+
+    <div class="marks-info">
+      <p>MCQ, CQ ও ব্যবহারিক নম্বর আলাদাভাবে এন্ট্রি করতে হবে।</p>
+      <p>প্রতিটি অংশের পাস নম্বর আলাদাভাবে যাচাই হবে।</p>
+      <p>নম্বর নির্ধারিত পূর্ণমানের বেশি দেওয়া যাবে না।</p>
+      <p>আগে সংরক্ষিত নম্বর পুনরায় এনে সম্পাদনা করা যাবে।</p>
+    </div>
   </section>
+
 </main>
 
 <footer class="footer">
@@ -121,5 +263,7 @@
 </footer>
 
 <script src="script.js"></script>
+<script src="marks.js"></script>
+
 </body>
 </html>
