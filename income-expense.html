@@ -2,16 +2,242 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>আয়-ব্যয় ব্যবস্থাপনা</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>আয়-ব্যয় ব্যবস্থাপনা | আব্দুল্লাহ হাট মাদ্রাসা</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+.income-page {
+  width: 94%;
+  max-width: 1100px;
+  margin: 25px auto;
+  color: #222;
+}
+
+.income-page .card {
+  background: #fff;
+  padding: 22px;
+  margin: 20px 0;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,.09);
+}
+
+.income-page h2,
+.income-page h3 {
+  color: #075e3a;
+}
+
+.income-page label {
+  display: block;
+  margin: 12px 0 6px;
+  font-weight: 600;
+}
+
+.income-page input,
+.income-page select,
+.income-page textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  background: #fff;
+}
+
+.income-page textarea {
+  min-height: 75px;
+}
+
+.income-page input:focus,
+.income-page select:focus,
+.income-page textarea:focus {
+  outline: none;
+  border-color: #075e3a;
+  box-shadow: 0 0 0 2px rgba(7,94,58,.12);
+}
+
+.income-page button {
+  padding: 11px 18px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 6px;
+  background: #075e3a;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.income-page button:hover {
+  opacity: .9;
+}
+
+#incomeStudentInfo {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f0f4f1;
+  border-left: 4px solid #075e3a;
+  border-radius: 5px;
+}
+
+#incomeStudentInfo p {
+  margin: 5px 0;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.summary-item {
+  padding: 15px;
+  background: #f0f4f1;
+  border-radius: 8px;
+}
+
+.summary-item p {
+  margin: 0 0 8px;
+}
+
+.summary-item strong {
+  color: #075e3a;
+  font-size: 18px;
+}
+
+.income-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.income-page table {
+  width: 100%;
+  min-width: 650px;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.income-page th,
+.income-page td {
+  border: 1px solid #ddd;
+  padding: 9px;
+  text-align: center;
+}
+
+.income-page th {
+  background: #075e3a;
+  color: white;
+}
+
+.receipt {
+  width: 100%;
+  max-width: 700px;
+  margin: 15px auto;
+  padding: 20px;
+  border: 2px solid #075e3a;
+  box-sizing: border-box;
+  background: white;
+}
+
+.receipt-header {
+  text-align: center;
+  border-bottom: 2px solid #d4a017;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.receipt-header h3 {
+  margin: 5px 0;
+  color: #075e3a;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px dotted #aaa;
+}
+
+.receipt-signatures {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 45px;
+}
+
+.receipt-signatures span {
+  border-top: 1px solid #333;
+  padding-top: 6px;
+  min-width: 130px;
+  text-align: center;
+}
+
+@media(max-width:650px) {
+  .income-page {
+    width: 94%;
+    margin: 15px auto;
+  }
+
+  .income-page .card {
+    padding: 14px;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .receipt {
+    padding: 12px;
+  }
+}
+
+/* HALF A4 RECEIPT PRINT */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #moneyReceipt,
+  #moneyReceipt * {
+    visibility: visible !important;
+  }
+
+  #moneyReceipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 190mm;
+    height: 135mm;
+    max-width: none;
+    margin: 0;
+    padding: 12mm;
+    box-sizing: border-box;
+    border: 1px solid #075e3a;
+    box-shadow: none;
+    overflow: hidden;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+</style>
 </head>
+
 <body>
 
 <header class="header">
-  <h2>আব্দুল্লাহ হাট ইসলামিয়া ফাজিল (ডিগ্রী) মাদ্রাসা</h2>
-  <p>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</p>
+  <div class="container">
+    <h2>আব্দুল্লাহ হাট ইসলামিয়া ফাজিল (ডিগ্রী) মাদ্রাসা</h2>
+    <p>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</p>
+  </div>
 </header>
 
 <nav class="nav">
@@ -22,46 +248,54 @@
   <a href="income-expense.html">আয়-ব্যয়</a>
 </nav>
 
-<main class="container">
+<main class="income-page">
 
-  <h2>আয়-ব্যয় ব্যবস্থাপনা</h2>
+  <section class="card">
+    <h2>আয়-ব্যয় ব্যবস্থাপনা</h2>
+    <p>প্রতিষ্ঠানের সকল আয় ও ব্যয়ের হিসাব সংরক্ষণ ও পরিচালনা করুন।</p>
+  </section>
+
+  <!-- NEW ACCOUNT ENTRY -->
 
   <section class="card">
     <h3>নতুন আয় / ব্যয় এন্ট্রি</h3>
 
-    <label>হিসাবের ধরন</label>
-    <select id="accountType">
+    <label for="accountType">হিসাবের ধরন</label>
+    <select id="accountType" required>
       <option value="income">আয়</option>
       <option value="expense">ব্যয়</option>
     </select>
 
-    <label>খাত নির্বাচন</label>
-    <select id="accountCategory">
+    <label for="accountCategory">খাত নির্বাচন</label>
+    <select id="accountCategory" required>
       <option value="">খাত নির্বাচন করুন</option>
-      <option>ভর্তি ফি</option>
-      <option>পরীক্ষা ফি</option>
-      <option>রেজিস্ট্রেশন ফি</option>
-      <option>ফরম ফিলাপ ফি</option>
-      <option>বেতন বিলম্ব ফি</option>
-      <option>বেতন</option>
-      <option>সরকারি অনুদান</option>
-      <option>বেসরকারি অনুদান</option>
-      <option>অন্যান্য আয়</option>
-      <option>শিক্ষক-কর্মচারীদের বেতন</option>
-      <option>পরীক্ষা পরিচালনা ব্যয়</option>
-      <option>বিদ্যুৎ বিল</option>
-      <option>অন্যান্য ব্যয়</option>
+
+      <optgroup label="আয়ের খাত">
+        <option value="ভর্তি ফি">ভর্তি ফি</option>
+        <option value="পরীক্ষা ফি">পরীক্ষা ফি</option>
+        <option value="রেজিস্ট্রেশন ফি">রেজিস্ট্রেশন ফি</option>
+        <option value="ফরম ফিলাপ ফি">ফরম ফিলাপ ফি</option>
+        <option value="বেতন বিলম্ব ফি">বেতন বিলম্ব ফি</option>
+        <option value="বেতন">বেতন</option>
+        <option value="সরকারি অনুদান">সরকারি অনুদান</option>
+        <option value="বেসরকারি অনুদান">বেসরকারি অনুদান</option>
+        <option value="অন্যান্য আয়">অন্যান্য আয়</option>
+      </optgroup>
+
+      <optgroup label="ব্যয়ের খাত">
+        <option value="শিক্ষক-কর্মচারীদের বেতন">শিক্ষক-কর্মচারীদের বেতন</option>
+        <option value="পরীক্ষা পরিচালনা ব্যয়">পরীক্ষা পরিচালনা ব্যয়</option>
+        <option value="বিদ্যুৎ বিল">বিদ্যুৎ বিল</option>
+        <option value="অন্যান্য ব্যয়">অন্যান্য ব্যয়</option>
+      </optgroup>
     </select>
 
-    <label>শিক্ষাবর্ষ</label>
+    <label for="incomeYear">শিক্ষাবর্ষ</label>
     <select id="incomeYear">
       <option value="">বছর নির্বাচন করুন</option>
-      <option>2026</option>
-      <option>2027</option>
-      <option>2028</option>
     </select>
 
-    <label>শ্রেণি</label>
+    <label for="incomeClass">শ্রেণি</label>
     <select id="incomeClass">
       <option value="">শ্রেণি নির্বাচন করুন</option>
       <option value="nurani1">নূরানী ১ম জামাত</option>
@@ -81,68 +315,163 @@
       <option value="fazil3">ফাজিল ৩য় বর্ষ</option>
     </select>
 
-    <label>শিক্ষার্থীর রোল</label>
-    <input type="number" id="incomeRoll" placeholder="রোল নম্বর লিখুন">
+    <label for="incomeRoll">শিক্ষার্থীর রোল</label>
+    <input
+      type="number"
+      id="incomeRoll"
+      min="1"
+      placeholder="রোল নম্বর লিখুন"
+    >
 
     <div id="incomeStudentInfo">
       <p>শিক্ষার্থীর নাম: —</p>
       <p>শিক্ষার্থী আইডি: —</p>
     </div>
 
-    <label>টাকার পরিমাণ</label>
-    <input type="number" id="accountAmount" placeholder="টাকার পরিমাণ লিখুন">
+    <label for="accountAmount">টাকার পরিমাণ</label>
+    <input
+      type="number"
+      id="accountAmount"
+      min="1"
+      step="0.01"
+      placeholder="টাকার পরিমাণ লিখুন"
+      required
+    >
 
-    <label>তারিখ</label>
-    <input type="date" id="accountDate">
+    <label for="accountDate">তারিখ</label>
+    <input type="date" id="accountDate" required>
 
-    <label>বিবরণ</label>
-    <textarea id="accountNote" placeholder="প্রয়োজনীয় বিবরণ লিখুন"></textarea>
+    <label for="accountNote">বিবরণ</label>
+    <textarea
+      id="accountNote"
+      placeholder="প্রয়োজনীয় বিবরণ লিখুন"
+    ></textarea>
 
-    <button type="button">হিসাব সংরক্ষণ</button>
+    <button type="button" id="saveAccountBtn">
+      হিসাব সংরক্ষণ করুন
+    </button>
+
+    <p id="accountMessage" role="status"></p>
   </section>
+
+  <!-- SUMMARY -->
 
   <section class="card">
     <h3>আয়-ব্যয়ের সারসংক্ষেপ</h3>
-    <p>মোট আয়: <strong id="totalIncome">০ টাকা</strong></p>
-    <p>মোট ব্যয়: <strong id="totalExpense">০ টাকা</strong></p>
-    <p>বর্তমান জমা: <strong id="currentBalance">০ টাকা</strong></p>
+
+    <div class="summary-grid">
+      <div class="summary-item">
+        <p>মোট আয়</p>
+        <strong id="totalIncome">০ টাকা</strong>
+      </div>
+
+      <div class="summary-item">
+        <p>মোট ব্যয়</p>
+        <strong id="totalExpense">০ টাকা</strong>
+      </div>
+
+      <div class="summary-item">
+        <p>বর্তমান জমা</p>
+        <strong id="currentBalance">০ টাকা</strong>
+      </div>
+    </div>
   </section>
+
+  <!-- REPORT -->
 
   <section class="card">
     <h3>হিসাবের রিপোর্ট</h3>
 
-    <label>রিপোর্টের ধরন</label>
+    <label for="reportType">রিপোর্টের ধরন</label>
     <select id="reportType">
       <option value="daily">দৈনিক রিপোর্ট</option>
       <option value="monthly">মাসিক রিপোর্ট</option>
       <option value="yearly">বার্ষিক রিপোর্ট</option>
     </select>
 
-    <label>তারিখ / মাস / বছর</label>
+    <label for="reportDate">তারিখ / মাস / বছর</label>
     <input type="date" id="reportDate">
 
-    <button type="button">রিপোর্ট দেখুন</button>
+    <button type="button" id="showReportBtn">
+      রিপোর্ট দেখুন
+    </button>
 
     <div id="incomeExpenseReport">
       রিপোর্ট এখানে দেখা যাবে।
     </div>
   </section>
 
+  <!-- MONEY RECEIPT -->
+
   <section class="card">
-    <h3>মানি রসিদ</h3>
-    <p>শিক্ষার্থীর নাম: —</p>
-    <p>আইডি ও রোল: —</p>
-    <p>জমার খাত: —</p>
-    <p>টাকার পরিমাণ: —</p>
-    <p>তারিখ: —</p>
-    <p>গ্রহণকারীর স্বাক্ষর: ______________</p>
-    <button type="button" onclick="window.print()">রসিদ প্রিন্ট</button>
-    <p>রসিদটি অর্ধেক A4 কাগজে প্রিন্ট করার উপযোগী করা হবে।</p>
+    <h3 class="no-print">মানি রসিদ</h3>
+
+    <div id="moneyReceipt" class="receipt">
+      <div class="receipt-header">
+        <h3>আব্দুল্লাহ হাট ইসলামিয়া ফাজিল (ডিগ্রী) মাদ্রাসা</h3>
+        <p>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</p>
+        <h3>টাকা জমার রসিদ</h3>
+      </div>
+
+      <div class="receipt-row">
+        <span>রসিদ নম্বর:</span>
+        <strong id="receiptNumber">—</strong>
+      </div>
+
+      <div class="receipt-row">
+        <span>শিক্ষার্থীর নাম:</span>
+        <strong id="receiptStudentName">—</strong>
+      </div>
+
+      <div class="receipt-row">
+        <span>শিক্ষার্থী আইডি:</span>
+        <strong id="receiptStudentId">—</strong>
+      </div>
+
+      <div class="receipt-row">
+        <span>শ্রেণি ও রোল:</span>
+        <strong id="receiptClassRoll">—</strong>
+      </div>
+
+      <div class="receipt-row">
+        <span>জমার খাত:</span>
+        <strong id="receiptCategory">—</strong>
+      </div>
+
+      <div class="receipt-row">
+        <span>টাকার পরিমাণ:</span>
+        <strong id="receiptAmount">—</strong>
+      </div>
+
+      <div class="receipt-row">
+        <span>তারিখ:</span>
+        <strong id="receiptDate">—</strong>
+      </div>
+
+      <div class="receipt-signatures">
+        <span>জমাদানকারীর স্বাক্ষর</span>
+        <span>গ্রহণকারীর স্বাক্ষর</span>
+      </div>
+    </div>
+
+    <div class="no-print">
+      <button type="button" id="printReceiptBtn">
+        রসিদ প্রিন্ট করুন
+      </button>
+      <p>রসিদটি A4 কাগজের প্রায় অর্ধেক জায়গায় প্রিন্ট করার জন্য সাজানো হয়েছে।</p>
+    </div>
   </section>
 
 </main>
 
 <script src="script.js"></script>
 <script src="income-expense.js"></script>
+
+<script>
+document.getElementById("printReceiptBtn")?.addEventListener("click", function() {
+  window.print();
+});
+</script>
+
 </body>
 </html>
