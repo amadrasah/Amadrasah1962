@@ -1,5 +1,5 @@
 
-/* ADMISSION MANAGEMENT */
+/* ADMISSION MANAGEMENT WITH STUDENT PHOTO */
 
 const ADMISSION_KEY = "madrasah_students";
 
@@ -23,14 +23,21 @@ const admissionClasses = {
 
 function getAdmissionStudents() {
   try {
-    return JSON.parse(localStorage.getItem(ADMISSION_KEY)) || [];
+    const data = JSON.parse(localStorage.getItem(ADMISSION_KEY));
+    return Array.isArray(data) ? data : [];
   } catch (error) {
     return [];
   }
 }
 
 function saveAdmissionStudents(data) {
-  localStorage.setItem(ADMISSION_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(ADMISSION_KEY, JSON.stringify(data));
+    return true;
+  } catch (error) {
+    console.error("Student save error:", error);
+    return false;
+  }
 }
 
 function admissionEscape(value) {
@@ -42,6 +49,8 @@ function admissionEscape(value) {
     "'": "&#039;"
   })[char]);
 }
+
+/* GET ADMISSION YEARS */
 
 function getAdmissionYears() {
   let saved = [];
@@ -63,7 +72,11 @@ function getAdmissionYears() {
 
   if (!years.length) {
     const current = new Date().getFullYear();
-    years.push(String(current), String(current + 1), String(current + 2));
+    years.push(
+      String(current),
+      String(current + 1),
+      String(current + 2)
+    );
   }
 
   return [...new Set(years)].sort();
@@ -71,6 +84,8 @@ function getAdmissionYears() {
 
 function loadAdmissionYears() {
   const select = document.getElementById("admissionYear");
+  if (!select) return;
+
   const previous = select.value;
   const years = getAdmissionYears();
 
@@ -88,6 +103,8 @@ function loadAdmissionYears() {
     select.value = previous;
   }
 }
+
+/* GENERATE STUDENT ID AND ROLL */
 
 function getNextAdmissionNumbers(year, classCode) {
   const students = getAdmissionStudents();
@@ -107,13 +124,15 @@ function getNextAdmissionNumbers(year, classCode) {
 }
 
 function updateAdmissionNumbers() {
-  const year = document.getElementById("admissionYear").value;
-  const classCode = document.getElementById("admissionClass").value;
+  const year = document.getElementById("admissionYear")?.value;
+  const classCode = document.getElementById("admissionClass")?.value;
 
   const idField = document.getElementById("admissionStudentId");
   const rollField = document.getElementById("admissionRoll");
 
-  if (!year || !classCode) {
+  if (!idField || !rollField) return;
+
+  if (!year || !classCode || !admissionClasses[classCode]) {
     idField.value = "";
     rollField.value = "";
     return;
@@ -125,22 +144,170 @@ function updateAdmissionNumbers() {
   rollField.value = numbers.roll;
 }
 
-document.getElementById("admissionYear")
-  .addEventListener("change", updateAdmissionNumbers);
+/* COMPRESS STUDENT PHOTO */
 
-document.getElementById("admissionClass")
-  .addEventListener("change", updateAdmissionNumbers);
+function compressAdmissionPhoto(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      resolve("");
+      return;
+    }
 
-document.getElementById("admissionForm")
-  .addEventListener("submit", function(event) {
+    if (!file.type.startsWith("image/")) {
+      reject(new Error("অনুগ্রহ করে একটি ছবি নির্বাচন করুন।"));
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      reject(new Error("ছবির আকার ৫ MB-এর বেশি হতে পারবে না।"));
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+      const image = new Image();
+
+      image.onload = function() {
+        const maxWidth = 500;
+        const maxHeight = 600;
+
+        let width = image.width;
+        let height = image.height;
+
+        const ratio = Math.min(
+          maxWidth / width,
+          maxHeight / height,
+          1
+        );
+
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext("2d");
+
+        if (!context) {
+          reject(new Error("ছবি প্রস্তুত করা যায়নি।"));
+          return;
+        }
+
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, width, height);
+
+        context.drawImage(image, 0, 0, width, height);
+
+        try {
+          const compressedPhoto =
+            canvas.toDataURL("image/jpeg", 0.78);
+
+          resolve(compressedPhoto);
+        } catch (error) {
+          reject(new Error("ছবি সংকুচিত করা যায়নি।"));
+        }
+      };
+
+      image.onerror = function() {
+        reject(new Error("ছবিটি খোলা যাচ্ছে না। অন্য ছবি দিন।"));
+      };
+
+      image.src = event.target.result;
+    };
+
+    reader.onerror = function() {
+      reject(new Error("ছবি পড়তে সমস্যা হয়েছে।"));
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+/* PHOTO PREVIEW */
+
+const admissionPhotoInput =
+  document.getElementById("admissionPhoto");
+
+const admissionPhotoPreview =
+  document.getElementById("admissionPhotoPreview");
+
+if (admissionPhotoInput) {
+  admissionPhotoInput.addEventListener("change", function() {
+    const file = this.files[0];
+
+    if (!file) {
+      if (admissionPhotoPreview) {
+        admissionPhotoPreview.src =
+          "https://placehold.co/120x140?text=Photo";
+      }
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      alert("অনুগ্রহ করে একটি ছবি নির্বাচন করুন।");
+      this.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("ছবির আকার ৫ MB-এর বেশি হতে পারবে না।");
+      this.value = "";
+      return;
+    }
+
+    if (admissionPhotoPreview) {
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+        admissionPhotoPreview.src = event.target.result;
+      };
+
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+/* ADMISSION FORM SUBMIT */
+
+const admissionForm =
+  document.getElementById("admissionForm");
+
+if (admissionForm) {
+  admissionForm.addEventListener("submit", async function(event) {
     event.preventDefault();
 
-    const year = document.getElementById("admissionYear").value;
-    const classCode = document.getElementById("admissionClass").value;
-    const name = document.getElementById("admissionName").value.trim();
+    const year =
+      document.getElementById("admissionYear").value;
+
+    const classCode =
+      document.getElementById("admissionClass").value;
+
+    const name =
+      document.getElementById("admissionName").value.trim();
+
+    const message =
+      document.getElementById("admissionMessage");
 
     if (!year || !classCode || !name) {
       alert("শিক্ষাবর্ষ, শ্রেণি ও শিক্ষার্থীর নাম পূরণ করুন।");
+      return;
+    }
+
+    if (!admissionClasses[classCode]) {
+      alert("সঠিক শ্রেণি নির্বাচন করুন।");
+      return;
+    }
+
+    const photoFile = admissionPhotoInput?.files[0] || null;
+
+    let photoData = "";
+
+    try {
+      photoData = await compressAdmissionPhoto(photoFile);
+    } catch (error) {
+      alert(error.message);
       return;
     }
 
@@ -166,34 +333,64 @@ document.getElementById("admissionForm")
       previousSchool: document.getElementById("admissionPreviousSchool").value.trim(),
       address: document.getElementById("admissionAddress").value.trim(),
       admissionDate: document.getElementById("admissionDate").value,
+
+      // শিক্ষার্থীর ছবি
+      photo: photoData,
+
       createdAt: new Date().toISOString()
     };
 
     students.push(student);
-    saveAdmissionStudents(students);
 
-    document.getElementById("admissionMessage").textContent =
-      "ভর্তি সফল হয়েছে। শিক্ষার্থী আইডি: " + student.studentId +
-      " | রোল: " + student.roll;
+    if (!saveAdmissionStudents(students)) {
+      alert(
+        "তথ্য সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ পূর্ণ হতে পারে।"
+      );
+      return;
+    }
+
+    if (message) {
+      message.textContent =
+        "ভর্তি সফল হয়েছে। শিক্ষার্থী আইডি: " +
+        student.studentId +
+        " | রোল: " + student.roll;
+    }
 
     this.reset();
+
+    if (admissionPhotoPreview) {
+      admissionPhotoPreview.src =
+        "https://placehold.co/120x140?text=Photo";
+    }
 
     loadAdmissionYears();
     updateAdmissionNumbers();
     renderAdmissionStudents();
   });
 
-document.getElementById("admissionForm")
-  .addEventListener("reset", function() {
+  admissionForm.addEventListener("reset", function() {
     setTimeout(() => {
       updateAdmissionNumbers();
+
+      if (admissionPhotoPreview) {
+        admissionPhotoPreview.src =
+          "https://placehold.co/120x140?text=Photo";
+      }
     }, 0);
   });
+}
+
+/* SHOW STUDENT LIST */
 
 function renderAdmissionStudents() {
   const students = getAdmissionStudents();
-  const search = document.getElementById("admissionSearch")
-    .value.trim().toLowerCase();
+
+  const searchField =
+    document.getElementById("admissionSearch");
+
+  const search = searchField
+    ? searchField.value.trim().toLowerCase()
+    : "";
 
   const filtered = students.filter(student => {
     const text = [
@@ -210,10 +407,17 @@ function renderAdmissionStudents() {
     return text.includes(search);
   });
 
-  document.getElementById("admissionStudentCount").textContent =
-    students.length;
+  const count =
+    document.getElementById("admissionStudentCount");
 
-  const tbody = document.getElementById("admissionStudentList");
+  if (count) {
+    count.textContent = students.length;
+  }
+
+  const tbody =
+    document.getElementById("admissionStudentList");
+
+  if (!tbody) return;
 
   if (!filtered.length) {
     tbody.innerHTML =
@@ -234,8 +438,25 @@ function renderAdmissionStudents() {
   `).join("");
 }
 
-document.getElementById("admissionSearch")
-  .addEventListener("input", renderAdmissionStudents);
+/* SEARCH */
+
+const admissionSearch =
+  document.getElementById("admissionSearch");
+
+if (admissionSearch) {
+  admissionSearch.addEventListener(
+    "input",
+    renderAdmissionStudents
+  );
+}
+
+/* INITIAL LOAD */
+
+document.getElementById("admissionYear")
+  ?.addEventListener("change", updateAdmissionNumbers);
+
+document.getElementById("admissionClass")
+  ?.addEventListener("change", updateAdmissionNumbers);
 
 loadAdmissionYears();
 renderAdmissionStudents();
