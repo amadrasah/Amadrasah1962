@@ -1,288 +1,579 @@
 
-/* =====================================
+/* ==========================================
    MADRASAH INCOME & EXPENSE MANAGEMENT
-   ===================================== */
+   UPDATED VERSION
+   ========================================== */
 
-const ACCOUNT_KEY = "madrasah_income_expense";
-const STUDENT_KEY = "madrasah_students";
+(function () {
+  "use strict";
 
-let accountRecords = JSON.parse(
-  localStorage.getItem(ACCOUNT_KEY) || "[]"
-);
+  const ACCOUNT_KEY = "madrasah_income_expense";
+  const STUDENT_KEY = "madrasah_students";
+  const YEAR_KEY = "madrasah_years";
 
-const $ = id => document.getElementById(id);
+  const $ = id => document.getElementById(id);
 
-function saveRecords() {
-  localStorage.setItem(ACCOUNT_KEY, JSON.stringify(accountRecords));
-}
+  let accountRecords = [];
 
-function money(amount) {
-  return Number(amount || 0).toLocaleString("bn-BD") + " টাকা";
-}
-
-function getStudents() {
   try {
-    const data = JSON.parse(localStorage.getItem(STUDENT_KEY) || "[]");
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
-}
-
-function findStudent() {
-  const classCode = $("incomeClass").value;
-  const roll = $("incomeRoll").value.trim();
-
-  const student = getStudents().find(s =>
-    String(s.classCode || s.class || s.studentClass || "") === classCode &&
-    String(s.roll || s.admissionRoll || "") === roll
-  );
-
-  const info = $("incomeStudentInfo");
-
-  if (!classCode || !roll) {
-    info.innerHTML = "<p>শিক্ষার্থীর নাম: —</p><p>শিক্ষার্থী আইডি: —</p>";
-    return null;
+    const saved = JSON.parse(
+      localStorage.getItem(ACCOUNT_KEY) || "[]"
+    );
+    accountRecords = Array.isArray(saved) ? saved : [];
+  } catch (error) {
+    accountRecords = [];
   }
 
-  if (!student) {
-    info.innerHTML = "<p>শিক্ষার্থী পাওয়া যায়নি।</p>";
-    return null;
+  /* =====================================
+     COMMON FUNCTIONS
+     ===================================== */
+
+  function money(amount) {
+    return Number(amount || 0).toLocaleString("bn-BD") + " টাকা";
   }
 
-  const name = student.name || student.studentName || "নাম পাওয়া যায়নি";
-  const id = student.id || student.studentId || "আইডি পাওয়া যায়নি";
-
-  info.innerHTML = `
-    <p>শিক্ষার্থীর নাম: <strong>${escapeHTML(name)}</strong></p>
-    <p>শিক্ষার্থী আইডি: <strong>${escapeHTML(id)}</strong></p>
-  `;
-
-  return student;
-}
-
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  })[char]);
-}
-
-function updateSummary() {
-  const income = accountRecords
-    .filter(r => r.type === "income")
-    .reduce((sum, r) => sum + Number(r.amount), 0);
-
-  const expense = accountRecords
-    .filter(r => r.type === "expense")
-    .reduce((sum, r) => sum + Number(r.amount), 0);
-
-  $("totalIncome").textContent = money(income);
-  $("totalExpense").textContent = money(expense);
-  $("currentBalance").textContent = money(income - expense);
-}
-
-function saveAccount() {
-  const type = $("accountType").value;
-  const category = $("accountCategory").value;
-  const year = $("incomeYear").value;
-  const amount = Number($("accountAmount").value);
-  const date = $("accountDate").value;
-  const note = $("accountNote").value.trim();
-
-  if (!category || !year || !amount || amount <= 0 || !date) {
-    alert("খাত, বছর, টাকার পরিমাণ এবং তারিখ পূরণ করুন।");
-    return;
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[char]);
   }
 
-  let student = null;
+  function getToday() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
 
-  if (type === "income" && $("incomeRoll").value.trim()) {
-    student = findStudent();
+    return `${year}-${month}-${day}`;
+  }
+
+  function saveRecords() {
+    try {
+      localStorage.setItem(
+        ACCOUNT_KEY,
+        JSON.stringify(accountRecords)
+      );
+      return true;
+    } catch (error) {
+      console.error("Account save error:", error);
+      return false;
+    }
+  }
+
+  /* =====================================
+     STUDENT MANAGEMENT
+     ===================================== */
+
+  function getStudents() {
+    try {
+      const data = JSON.parse(
+        localStorage.getItem(STUDENT_KEY) || "[]"
+      );
+
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function getStudentName(student) {
+    return student.name ||
+      student.studentName ||
+      "নাম পাওয়া যায়নি";
+  }
+
+  function getStudentId(student) {
+    return student.studentId ||
+      student.id ||
+      "আইডি পাওয়া যায়নি";
+  }
+
+  function findStudent() {
+    const classCode = $("incomeClass").value;
+    const roll = $("incomeRoll").value.trim();
+    const year = $("incomeYear").value;
+
+    const info = $("incomeStudentInfo");
+
+    if (!classCode || !roll || !year) {
+      info.innerHTML =
+        "<p>শিক্ষার্থীর নাম: —</p>" +
+        "<p>শিক্ষার্থী আইডি: —</p>";
+
+      return null;
+    }
+
+    const student = getStudents().find(s => {
+      const studentClass =
+        s.classCode || s.class || s.studentClass || "";
+
+      const studentRoll =
+        s.roll || s.admissionRoll || "";
+
+      return (
+        String(studentClass) === String(classCode) &&
+        String(studentRoll) === String(roll) &&
+        String(s.year || "") === String(year)
+      );
+    });
 
     if (!student) {
-      alert("শিক্ষার্থী পাওয়া যায়নি। শ্রেণি ও রোল পরীক্ষা করুন।");
-      return;
-    }
-  }
+      info.innerHTML =
+        "<p>এই শিক্ষাবর্ষ ও শ্রেণিতে শিক্ষার্থী পাওয়া যায়নি।</p>";
 
-  const record = {
-    id: Date.now(),
-    type,
-    category,
-    year,
-    classCode: $("incomeClass").value,
-    roll: $("incomeRoll").value.trim(),
-    studentName: student
-      ? student.name || student.studentName || ""
-      : "",
-    studentId: student
-      ? student.id || student.studentId || ""
-      : "",
-    amount,
-    date,
-    note
-  };
-
-  accountRecords.push(record);
-  saveRecords();
-  updateSummary();
-
-  alert("হিসাব সফলভাবে সংরক্ষিত হয়েছে।");
-
-  $("accountAmount").value = "";
-  $("accountNote").value = "";
-
-  if (type === "income") {
-    showReceipt(record);
-  }
-}
-
-function showReceipt(record) {
-  const receiptArea = document.querySelectorAll(".card")[3];
-
-  if (!receiptArea) return;
-
-  receiptArea.innerHTML = `
-    <div id="receiptContent">
-      <h3>আব্দুল্লাহ হাট ইসলামিয়া ফাজিল (ডিগ্রী) মাদ্রাসা</h3>
-      <p>নাটেশ্বর, সোনাইমুড়ী, নোয়াখালী</p>
-      <h3>মানি রসিদ</h3>
-      <hr>
-      <p>রসিদ নম্বর: ${record.id}</p>
-      <p>শিক্ষার্থীর নাম: ${escapeHTML(record.studentName || "প্রযোজ্য নয়")}</p>
-      <p>শিক্ষার্থী আইডি: ${escapeHTML(record.studentId || "প্রযোজ্য নয়")}</p>
-      <p>রোল: ${escapeHTML(record.roll || "প্রযোজ্য নয়")}</p>
-      <p>জমার খাত: ${escapeHTML(record.category)}</p>
-      <p>টাকার পরিমাণ: <strong>${money(record.amount)}</strong></p>
-      <p>তারিখ: ${escapeHTML(record.date)}</p>
-      <p>বিবরণ: ${escapeHTML(record.note || "—")}</p>
-      <br>
-      <p>গ্রহণকারীর স্বাক্ষর: __________________</p>
-    </div>
-    <button type="button" onclick="printReceipt()">রসিদ প্রিন্ট</button>
-  `;
-}
-
-function printReceipt() {
-  const content = $("receiptContent");
-  if (!content) {
-    alert("প্রিন্ট করার মতো রসিদ নেই।");
-    return;
-  }
-
-  const printWindow = window.open("", "_blank");
-
-  if (!printWindow) {
-    alert("প্রিন্ট উইন্ডো খুলতে পারেনি। ব্রাউজারের পপ-আপ অনুমতি দিন।");
-    return;
-  }
-
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html lang="bn">
-    <head>
-      <meta charset="UTF-8">
-      <title>মানি রসিদ</title>
-      <style>
-        @page { size: A5 portrait; margin: 10mm; }
-        body {
-          font-family: Arial, sans-serif;
-          color: #111;
-          border: 1px solid #999;
-          padding: 15px;
-        }
-        h3, p { text-align: center; }
-        p { margin: 10px 0; }
-        hr { border: 0; border-top: 1px solid #777; }
-      </style>
-    </head>
-    <body>${content.innerHTML}</body>
-    </html>
-  `);
-
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
-}
-
-function showReport() {
-  const type = $("reportType").value;
-  const selectedDate = $("reportDate").value;
-
-  if (!selectedDate) {
-    alert("রিপোর্টের তারিখ নির্বাচন করুন।");
-    return;
-  }
-
-  const filtered = accountRecords.filter(record => {
-    if (type === "daily") {
-      return record.date === selectedDate;
+      return null;
     }
 
-    if (type === "monthly") {
-      return record.date.slice(0, 7) === selectedDate.slice(0, 7);
-    }
+    const name = getStudentName(student);
+    const id = getStudentId(student);
 
-    return record.date.slice(0, 4) === selectedDate.slice(0, 4);
-  });
-
-  const income = filtered
-    .filter(r => r.type === "income")
-    .reduce((sum, r) => sum + Number(r.amount), 0);
-
-  const expense = filtered
-    .filter(r => r.type === "expense")
-    .reduce((sum, r) => sum + Number(r.amount), 0);
-
-  let html = `
-    <h4>রিপোর্ট</h4>
-    <p>মোট আয়: ${money(income)}</p>
-    <p>মোট ব্যয়: ${money(expense)}</p>
-    <p>উদ্বৃত্ত: ${money(income - expense)}</p>
-    <hr>
-  `;
-
-  filtered.forEach(record => {
-    html += `
-      <p>
-        ${escapeHTML(record.date)} —
-        ${escapeHTML(record.category)} —
-        ${money(record.amount)}
-        (${record.type === "income" ? "আয়" : "ব্যয়"})
+    info.innerHTML = `
+      <p>শিক্ষার্থীর নাম:
+        <strong>${escapeHTML(name)}</strong>
+      </p>
+      <p>শিক্ষার্থী আইডি:
+        <strong>${escapeHTML(id)}</strong>
       </p>
     `;
-  });
 
-  if (!filtered.length) {
-    html += "<p>এই সময়ের কোনো হিসাব পাওয়া যায়নি।</p>";
+    return student;
   }
 
-  $("incomeExpenseReport").innerHTML = html;
-}
+  /* =====================================
+     YEAR MANAGEMENT
+     ===================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
-  updateSummary();
+  function getAvailableYears() {
+    let saved = [];
 
-  const today = new Date().toISOString().slice(0, 10);
-  $("accountDate").value = today;
-  $("reportDate").value = today;
+    try {
+      saved = JSON.parse(
+        localStorage.getItem(YEAR_KEY) || "[]"
+      );
+    } catch (error) {}
 
-  $("incomeClass").addEventListener("change", findStudent);
-  $("incomeRoll").addEventListener("input", findStudent);
+    if (!Array.isArray(saved)) {
+      saved = Object.values(saved);
+    }
 
-  const cards = document.querySelectorAll(".card");
+    const years = saved.map(item => {
+      if (typeof item === "object" && item !== null) {
+        return String(
+          item.year || item.value || item.name || ""
+        );
+      }
 
-  if (cards[0]) {
-    const saveButton = cards[0].querySelector("button");
-    if (saveButton) saveButton.addEventListener("click", saveAccount);
+      return String(item);
+    }).filter(year => /^\d{4}$/.test(year));
+
+    if (!years.length) {
+      const current = new Date().getFullYear();
+
+      years.push(
+        String(current),
+        String(current + 1),
+        String(current + 2)
+      );
+    }
+
+    return [...new Set(years)].sort();
   }
 
-  if (cards[2]) {
-    const reportButton = cards[2].querySelector("button");
-    if (reportButton) reportButton.addEventListener("click", showReport);
+  function loadIncomeYears() {
+    const select = $("incomeYear");
+    if (!select) return;
+
+    const previous = select.value;
+    const years = getAvailableYears();
+
+    select.innerHTML =
+      '<option value="">বছর নির্বাচন করুন</option>';
+
+    years.forEach(year => {
+      const option = document.createElement("option");
+
+      option.value = year;
+      option.textContent = year;
+
+      select.appendChild(option);
+    });
+
+    if (years.includes(previous)) {
+      select.value = previous;
+    }
   }
-});
+
+  /* =====================================
+     CATEGORY MANAGEMENT
+     ===================================== */
+
+  function setupCategories() {
+    const select = $("accountCategory");
+    if (!select) return;
+
+    const categories = {
+      income: [],
+      expense: []
+    };
+
+    select.querySelectorAll("optgroup").forEach(group => {
+      const label = group.label || "";
+
+      const type = label.includes("আয়ের")
+        ? "income"
+        : label.includes("ব্যয়ের")
+          ? "expense"
+          : null;
+
+      if (!type) return;
+
+      Array.from(group.querySelectorAll("option")).forEach(option => {
+        categories[type].push({
+          value: option.value || option.textContent.trim(),
+          text: option.textContent.trim()
+        });
+      });
+    });
+
+    function updateCategoryOptions() {
+      const type = $("accountType").value;
+      const previous = select.value;
+
+      select.innerHTML =
+        '<option value="">খাত নির্বাচন করুন</option>';
+
+      (categories[type] || []).forEach(item => {
+        const option = document.createElement("option");
+
+        option.value = item.value;
+        option.textContent = item.text;
+
+        select.appendChild(option);
+      });
+
+      if (
+        Array.from(select.options).some(
+          option => option.value === previous
+        )
+      ) {
+        select.value = previous;
+      }
+    }
+
+    $("accountType").addEventListener(
+      "change",
+      updateCategoryOptions
+    );
+
+    updateCategoryOptions();
+  }
+
+  /* =====================================
+     STUDENT INFORMATION EVENTS
+     ===================================== */
+
+  function setupStudentSearch() {
+    $("incomeClass").addEventListener("change", findStudent);
+    $("incomeRoll").addEventListener("input", findStudent);
+    $("incomeYear").addEventListener("change", findStudent);
+  }
+
+  /* =====================================
+     INCOME & EXPENSE SUMMARY
+     ===================================== */
+
+  function updateSummary() {
+    const income = accountRecords
+      .filter(record => record.type === "income")
+      .reduce(
+        (sum, record) => sum + Number(record.amount || 0),
+        0
+      );
+
+    const expense = accountRecords
+      .filter(record => record.type === "expense")
+      .reduce(
+        (sum, record) => sum + Number(record.amount || 0),
+        0
+      );
+
+    $("totalIncome").textContent = money(income);
+    $("totalExpense").textContent = money(expense);
+    $("currentBalance").textContent = money(income - expense);
+  }
+
+  /* =====================================
+     RECEIPT MANAGEMENT
+     ===================================== */
+
+  function showReceipt(record) {
+    const studentName =
+      record.studentName || "প্রযোজ্য নয়";
+
+    const studentId =
+      record.studentId || "প্রযোজ্য নয়";
+
+    const classRoll =
+      record.className
+        ? record.className + " / " + (record.roll || "—")
+        : "প্রযোজ্য নয়";
+
+    $("receiptNumber").textContent = record.id;
+    $("receiptStudentName").textContent = studentName;
+    $("receiptStudentId").textContent = studentId;
+    $("receiptClassRoll").textContent = classRoll;
+    $("receiptCategory").textContent = record.category;
+    $("receiptAmount").textContent = money(record.amount);
+    $("receiptDate").textContent = record.date;
+  }
+
+  /* =====================================
+     SAVE ACCOUNT
+     ===================================== */
+
+  function saveAccount() {
+    const type = $("accountType").value;
+    const category = $("accountCategory").value;
+    const year = $("incomeYear").value;
+    const amount = Number($("accountAmount").value);
+    const date = $("accountDate").value;
+    const note = $("accountNote").value.trim();
+
+    if (!category || !year || !date || !Number.isFinite(amount) || amount <= 0) {
+      alert("খাত, শিক্ষাবর্ষ, টাকার পরিমাণ এবং তারিখ পূরণ করুন।");
+      return;
+    }
+
+    let student = null;
+
+    const roll = $("incomeRoll").value.trim();
+    const classCode = $("incomeClass").value;
+
+    const studentFeeCategories = [
+      "ভর্তি ফি",
+      "পরীক্ষা ফি",
+      "রেজিস্ট্রেশন ফি",
+      "ফরম ফিলাপ ফি",
+      "বেতন বিলম্ব ফি",
+      "বেতন"
+    ];
+
+    if (
+      type === "income" &&
+      studentFeeCategories.includes(category)
+    ) {
+      if (!classCode || !roll) {
+        alert("এই খাতের জন্য শিক্ষার্থীর শ্রেণি ও রোল দিতে হবে।");
+        return;
+      }
+
+      student = findStudent();
+
+      if (!student) {
+        alert("শিক্ষার্থী পাওয়া যায়নি। শিক্ষাবর্ষ, শ্রেণি ও রোল পরীক্ষা করুন।");
+        return;
+      }
+    } else if (type === "income" && (classCode || roll)) {
+      if (classCode && roll) {
+        student = findStudent();
+
+        if (!student) {
+          alert("শিক্ষার্থীর তথ্য সঠিক নয়। শ্রেণি ও রোল পরীক্ষা করুন।");
+          return;
+        }
+      } else {
+        alert("শিক্ষার্থীর তথ্য দিতে হলে শ্রেণি ও রোল দুটিই দিতে হবে।");
+        return;
+      }
+    }
+
+    const record = {
+      id: Date.now(),
+      type: type,
+      category: category,
+      year: year,
+
+      classCode: student ? classCode : "",
+      className: student
+        ? student.className || ""
+        : "",
+
+      roll: student ? roll : "",
+
+      studentName: student
+        ? getStudentName(student)
+        : "",
+
+      studentId: student
+        ? getStudentId(student)
+        : "",
+
+      amount: amount,
+      date: date,
+      note: note,
+
+      createdAt: new Date().toISOString()
+    };
+
+    accountRecords.push(record);
+
+    if (!saveRecords()) {
+      accountRecords.pop();
+
+      alert(
+        "হিসাব সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ পরীক্ষা করুন।"
+      );
+
+      return;
+    }
+
+    updateSummary();
+
+    $("accountMessage").textContent =
+      "হিসাব সফলভাবে সংরক্ষিত হয়েছে।";
+
+    if (type === "income") {
+      showReceipt(record);
+    }
+
+    $("accountAmount").value = "";
+    $("accountNote").value = "";
+
+    if (type === "income") {
+      $("incomeRoll").value = "";
+      $("incomeStudentInfo").innerHTML =
+        "<p>শিক্ষার্থীর নাম: —</p>" +
+        "<p>শিক্ষার্থী আইডি: —</p>";
+    }
+  }
+
+  /* =====================================
+     REPORT MANAGEMENT
+     ===================================== */
+
+  function showReport() {
+    const type = $("reportType").value;
+    const selectedDate = $("reportDate").value;
+
+    if (!selectedDate) {
+      alert("রিপোর্টের তারিখ নির্বাচন করুন।");
+      return;
+    }
+
+    const filtered = accountRecords.filter(record => {
+      if (!record.date) return false;
+
+      if (type === "daily") {
+        return record.date === selectedDate;
+      }
+
+      if (type === "monthly") {
+        return record.date.slice(0, 7) === selectedDate.slice(0, 7);
+      }
+
+      return record.date.slice(0, 4) === selectedDate.slice(0, 4);
+    });
+
+    const income = filtered
+      .filter(record => record.type === "income")
+      .reduce(
+        (sum, record) => sum + Number(record.amount || 0),
+        0
+      );
+
+    const expense = filtered
+      .filter(record => record.type === "expense")
+      .reduce(
+        (sum, record) => sum + Number(record.amount || 0),
+        0
+      );
+
+    let html = `
+      <h4>হিসাবের রিপোর্ট</h4>
+
+      <p>মোট আয়: <strong>${money(income)}</strong></p>
+      <p>মোট ব্যয়: <strong>${money(expense)}</strong></p>
+      <p>উদ্বৃত্ত: <strong>${money(income - expense)}</strong></p>
+
+      <div class="income-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>তারিখ</th>
+            <th>ধরন</th>
+            <th>খাত</th>
+            <th>শিক্ষার্থী</th>
+            <th>টাকা</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    filtered.forEach(record => {
+      html += `
+        <tr>
+          <td>${escapeHTML(record.date)}</td>
+          <td>${record.type === "income" ? "আয়" : "ব্যয়"}</td>
+          <td>${escapeHTML(record.category)}</td>
+          <td>${escapeHTML(record.studentName || "—")}</td>
+          <td>${money(record.amount)}</td>
+        </tr>
+      `;
+    });
+
+    if (!filtered.length) {
+      html += `
+        <tr>
+          <td colspan="5">এই সময়ের কোনো হিসাব পাওয়া যায়নি।</td>
+        </tr>
+      `;
+    }
+
+    html += `
+        </tbody>
+      </table>
+      </div>
+    `;
+
+    $("incomeExpenseReport").innerHTML = html;
+  }
+
+  /* =====================================
+     INITIALIZATION
+     ===================================== */
+
+  function initialize() {
+    loadIncomeYears();
+    setupCategories();
+    setupStudentSearch();
+
+    updateSummary();
+
+    $("accountDate").value = getToday();
+    $("reportDate").value = getToday();
+
+    $("saveAccountBtn").addEventListener(
+      "click",
+      saveAccount
+    );
+
+    $("showReportBtn").addEventListener(
+      "click",
+      showReport
+    );
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initialize
+    );
+  } else {
+    initialize();
+  }
+
+})();
